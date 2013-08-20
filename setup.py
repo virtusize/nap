@@ -9,8 +9,13 @@ setup(
     packages=find_packages(),
 
     install_requires=[
-        'flask==0.10.1',
-        'flask-restful==0.2.3',
-        'requests==1.2.3'
+        'flask',
+        'flask-restful',
+        'requests',
+        'flask-classy',
+        'flask-sqlalchemy',
+        'sqlalchemy',
+        'flask-auth',
+        'colander'
     ]
 )
