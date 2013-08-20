@@ -15,33 +15,33 @@
 
 ```json
 {
-    'class': ['User', 'item'],
-    'properties': {
-        'name': 'John',
-        'email': 'john@virtusize.com'
+    "class": ["User", "item"],
+    "properties": {
+        "name": "John",
+        "email": "john@virtusize.com"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['UserProduct', 'collection'],
-            'rel': 'http://api.virtusize.com/user-products',
-            'href': 'http://api.virtusize.com/users/1/user-products'
+            "class": ["UserProduct", "collection"],
+            "rel": "http://api.virtusize.com/user-products",
+            "href": "http://api.virtusize.com/users/1/user-products"
         }
     ],
-    'actions': [
+    "actions": [
         {
-            'name': 'update',
-            'title': 'Update User',
-            'method': 'PATCH',
-            'href': 'http://api.virtusize.com/users/1',
-            'type': 'application/x-www-form-urlencoded',
-            'fields': [
-                {'name': 'name', 'type': 'text'},
-                {'name': 'email', 'type': 'text'}
+            "name": "update",
+            "title": "Update User",
+            "method": "PATCH",
+            "href": "http://api.virtusize.com/users/1",
+            "type": "application/x-www-form-urlencoded",
+            "fields": [
+                {"name": "name", "type": "text"},
+                {"name": "email", "type": "text"}
             ]
         }
     ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/users/1'}
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/users/1"}
     ]
 }
 ```
@@ -50,42 +50,42 @@
 
 ```json
 {
-    'class': ['Product', 'item'],
-    'properties': {
-        'name': 'Pink sweater',
-        'owner_id': 88,
-        'ownder_type': 'Brand'
+    "class": ["Product", "item"],
+    "properties": {
+        "name": "Pink sweater",
+        "owner_id": 88,
+        "ownder_type": "Brand"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Brand', 'item'],
-            'rel': 'http://api.virtusize.com/brands',
-            'href': 'http://api.virtusize.com/brands/3'
+            "class": ["Brand", "item"],
+            "rel": "http://api.virtusize.com/brands",
+            "href": "http://api.virtusize.com/brands/3"
         },
         {
-            'class': ['ProductType', 'item'],
-            'rel': 'http://api.virtusize.com/product-types',
-            'href': 'http://api.virtusize.com/product-types/7'
+            "class": ["ProductType", "item"],
+            "rel": "http://api.virtusize.com/product-types",
+            "href": "http://api.virtusize.com/product-types/7"
         },
         {
-            'class': ['MeasurementSet', 'collection'],
-            'rel': 'http://api.virtusize.com/measurement-sets',
-            'href': 'http://api.virtusize.com/products/14/measurement-sets'
+            "class": ["MeasurementSet", "collection"],
+            "rel": "http://api.virtusize.com/measurement-sets",
+            "href": "http://api.virtusize.com/products/14/measurement-sets"
         },
         {
-            'class': ['StoreProducts', 'collection'],
-            'rel': 'http://api.virtusize.com/store-products',
-            'href': 'http://api.virtusize.com/products/14/store-products'
+            "class": ["StoreProducts", "collection"],
+            "rel": "http://api.virtusize.com/store-products",
+            "href": "http://api.virtusize.com/products/14/store-products"
         },
         {
-            'class': ['UserProducts', 'collection'],
-            'rel': 'http://api.virtusize.com/user-products',
-            'href': 'http://api.virtusize.com/products/14/user-products'
+            "class": ["UserProducts", "collection"],
+            "rel": "http://api.virtusize.com/user-products",
+            "href": "http://api.virtusize.com/products/14/user-products"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/products/14'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/products/14"}
     ]
 }
 ```
@@ -94,35 +94,35 @@
 
 ```json
 {
-    'class': ['UserProduct', 'item'],
-    'properties': {
-        'name': 'My favorite sweater'
+    "class": ["UserProduct", "item"],
+    "properties": {
+        "name": "My favorite sweater"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['User', 'item'],
-            'rel': 'http://api.virtusize.com/users',
-            'href': 'http://api.virtusize.com/user/1'
+            "class": ["User", "item"],
+            "rel": "http://api.virtusize.com/users",
+            "href": "http://api.virtusize.com/user/1"
         },
         {
-            'class': ['Product', 'item'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/products/3'
+            "class": ["Product", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/3"
         },
         {
-            'class': ['MeasurementSet', 'item'],
-            'rel': 'http://api.virtusize.com/measurement-sets',
-            'href': 'http://api.virtusize.com/measurement-sets/24'
+            "class": ["MeasurementSet", "item"],
+            "rel": "http://api.virtusize.com/measurement-sets",
+            "href": "http://api.virtusize.com/measurement-sets/24"
         },
         {
-            'class': ['Measurement', 'collection'],
-            'rel': 'http://api.virtusize.com/measurements',
-            'href': 'http://api.virtusize.com/user-products/17/measurements'
+            "class": ["Measurement", "collection"],
+            "rel": "http://api.virtusize.com/measurements",
+            "href": "http://api.virtusize.com/user-products/17/measurements"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/user-products/17'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/user-products/17"}
     ]
 }
 ```
@@ -131,31 +131,31 @@
 
 ```json
 {
-    'class': ['StoreProduct', 'item'],
-    'properties': {
-        'name': 'Pink sweater',
-        'external_id': 'SKU1234567890'
+    "class": ["StoreProduct", "item"],
+    "properties": {
+        "name": "Pink sweater",
+        "external_id": "SKU1234567890"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Store', 'item'],
-            'rel': 'http://api.virtusize.com/stores',
-            'href': 'http://api.virtusize.com/stores/8'
+            "class": ["Store", "item"],
+            "rel": "http://api.virtusize.com/stores",
+            "href": "http://api.virtusize.com/stores/8"
         },
         {
-            'class': ['MeasurementSet', 'collection'],
-            'rel': 'http://api.virtusize.com/measurement-sets',
-            'href': 'http://api.virtusize.com/store-products/8/measurement-sets'
+            "class": ["MeasurementSet", "collection"],
+            "rel": "http://api.virtusize.com/measurement-sets",
+            "href": "http://api.virtusize.com/store-products/8/measurement-sets"
         },
         {
-            'class': ['Products', 'item'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/products/3'
+            "class": ["Products", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/3"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/store-products/8'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/store-products/8"}
     ]
 }
 ```
@@ -164,25 +164,25 @@
 
 ```json
 {
-    'class': ['ProductType', 'item'],
-    'properties': {
-        'name': 'dress'
+    "class": ["ProductType", "item"],
+    "properties": {
+        "name": "dress"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['MeasurementTemplate', 'collection'],
-            'rel': 'http://api.virtusize.com/measurement-templates',
-            'href': 'http://api.virtusize.com/product-types/1/measurement-templates'
+            "class": ["MeasurementTemplate", "collection"],
+            "rel": "http://api.virtusize.com/measurement-templates",
+            "href": "http://api.virtusize.com/product-types/1/measurement-templates"
         },
         {
-            'class': ['Product', 'collection'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/product-types/1/products'
+            "class": ["Product", "collection"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/product-types/1/products"
         }
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/product-types/1'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/product-types/1"}
     ]
 }
 ```
@@ -191,30 +191,30 @@
 
 ```json
 {
-    'class': ['MeasurementTemplate', 'item'],
-    'properties': {
-        'name': 'height',
-        'required': true,
-        'arrow': true,
-        'min': 500,
-        'max': 1700,
-        'default': 900
+    "class": ["MeasurementTemplate", "item"],
+    "properties": {
+        "name": "height",
+        "required": true,
+        "arrow": true,
+        "min": 500,
+        "max": 1700,
+        "default": 900
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['ProductType', 'item'],
-            'rel': 'http://api.virtusize.com/product-types',
-            'href': 'http://api.virtusize.com/product-types/1'
+            "class": ["ProductType", "item"],
+            "rel": "http://api.virtusize.com/product-types",
+            "href": "http://api.virtusize.com/product-types/1"
         },
         {
-            'class': ['Measurement', 'collection'],
-            'rel': 'http://api.virtusize.com/measurements',
-            'href': 'http://api.virtusize.com/measurement-templates/2/measurements'
+            "class": ["Measurement", "collection"],
+            "rel": "http://api.virtusize.com/measurements",
+            "href": "http://api.virtusize.com/measurement-templates/2/measurements"
         }
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/measurement-templates/2'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/measurement-templates/2"}
     ]
 }
 ```
@@ -223,25 +223,25 @@
 
 ```json
 {
-    'class': ['Measurement', 'item'],
-    'properties': {
-        'name': 'dress'
+    "class": ["Measurement", "item"],
+    "properties": {
+        "name": "dress"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Product', 'item'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/products/11'
+            "class": ["Product", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/11"
         },
         {
-            'class': ['Measurement', 'collection'],
-            'rel': 'http://api.virtusize.com/measurements',
-            'href': 'http://api.virtusize.com/measurement-templates/2/measurements'
+            "class": ["Measurement", "collection"],
+            "rel": "http://api.virtusize.com/measurements",
+            "href": "http://api.virtusize.com/measurement-templates/2/measurements"
         }
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/measurement-templates/2'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/measurement-templates/2"}
     ]
 }
 ```
@@ -250,35 +250,35 @@
 
 ```json
 {
-    'class': ['MeasurementSet', 'item'],
-    'properties': {
-        'position': 1
+    "class": ["MeasurementSet", "item"],
+    "properties": {
+        "position": 1
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Measurement', 'collection'],
-            'rel': 'http://api.virtusize.com/measurements',
-            'href': 'http://api.virtusize.com/measurement-sets/4/measurements'
+            "class": ["Measurement", "collection"],
+            "rel": "http://api.virtusize.com/measurements",
+            "href": "http://api.virtusize.com/measurement-sets/4/measurements"
         },
         {
-            'class': ['Product', 'item'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/products/11'
+            "class": ["Product", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/11"
         },
         {
-            'class': ['RegionMeasurementSet', 'collection'],
-            'rel': 'http://api.virtusize.com/region-measurement-sets',
-            'href': 'http://api.virtusize.com/measurement-sets/4/region-measurement-sets'
+            "class": ["RegionMeasurementSet", "collection"],
+            "rel": "http://api.virtusize.com/region-measurement-sets",
+            "href": "http://api.virtusize.com/measurement-sets/4/region-measurement-sets"
         },
         {
-            'class': ['StoreProduct', 'item'],
-            'rel': 'http://api.virtusize.com/store-products',
-            'href': 'http://api.virtusize.com/store-products/7'
+            "class": ["StoreProduct", "item"],
+            "rel": "http://api.virtusize.com/store-products",
+            "href": "http://api.virtusize.com/store-products/7"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/measurement-sets/4'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/measurement-sets/4"}
     ]
 }
 ```
@@ -287,27 +287,27 @@
 
 ```json
 {
-    'class': ['Store', 'item'],
-    'properties': {
-        'name': 'Massimo Dutti',
-        'short_name': 'massimo_dutti',
-        'api_key': '3d0f27de5681cc43733ee7dcc9fe3cb9351768fe'
+    "class": ["Store", "item"],
+    "properties": {
+        "name": "Massimo Dutti",
+        "short_name": "massimo_dutti",
+        "api_key": "3d0f27de5681cc43733ee7dcc9fe3cb9351768fe"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['RegionSet', 'collection'],
-            'rel': 'http://api.virtusize.com/region-sets',
-            'href': 'http://api.virtusize.com/stores/23/region-sets'
+            "class": ["RegionSet", "collection"],
+            "rel": "http://api.virtusize.com/region-sets",
+            "href": "http://api.virtusize.com/stores/23/region-sets"
         },
         {
-            'class': ['StoreProduct', 'collection'],
-            'rel': 'http://api.virtusize.com/store-products',
-            'href': 'http://api.virtusize.com/stores/23/store-products'
+            "class": ["StoreProduct", "collection"],
+            "rel": "http://api.virtusize.com/store-products",
+            "href": "http://api.virtusize.com/stores/23/store-products"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/stores/23'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/stores/23"}
     ]
 }
 ```
@@ -316,20 +316,20 @@
 
 ```json
 {
-    'class': ['Brand', 'item'],
-    'properties': {
-        'name': 'Diesel'
+    "class": ["Brand", "item"],
+    "properties": {
+        "name": "Diesel"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Product', 'collection'],
-            'rel': 'http://api.virtusize.com/products',
-            'href': 'http://api.virtusize.com/brands/17/products'
+            "class": ["Product", "collection"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/brands/17/products"
         }
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/brands/17'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/brands/17"}
     ]
 }
 ```
@@ -338,26 +338,26 @@
 
 ```json
 {
-    'class': ['Region', 'item'],
-    'properties': {
-        'name': 'Great Britain',
-        'code': 'GB'
+    "class": ["Region", "item"],
+    "properties": {
+        "name": "Great Britain",
+        "code": "GB"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['RegionMeasurementSet', 'collection'],
-            'rel': 'http://api.virtusize.com/region-measurement-sets',
-            'href': 'http://api.virtusize.com/regions/3/region-measurement-sets'
+            "class": ["RegionMeasurementSet", "collection"],
+            "rel": "http://api.virtusize.com/region-measurement-sets",
+            "href": "http://api.virtusize.com/regions/3/region-measurement-sets"
         },
         {
-            'class': ['StoreRegion', 'collection'],
-            'rel': 'http://api.virtusize.com/store-regions',
-            'href': 'http://api.virtusize.com/regions/3/store-regions'
+            "class": ["StoreRegion", "collection"],
+            "rel": "http://api.virtusize.com/store-regions",
+            "href": "http://api.virtusize.com/regions/3/store-regions"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/regions/3'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/regions/3"}
     ]
 }
 ```
@@ -366,25 +366,25 @@
 
 ```json
 {
-    'class': ['StoreRegion', 'item'],
-    'properties': {
-        'default': true 
+    "class": ["StoreRegion", "item"],
+    "properties": {
+        "default": true 
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Store', 'item'],
-            'rel': 'http://api.virtusize.com/stores',
-            'href': 'http://api.virtusize.com/stores/8'
+            "class": ["Store", "item"],
+            "rel": "http://api.virtusize.com/stores",
+            "href": "http://api.virtusize.com/stores/8"
         },
         {
-            'class': ['Region', 'item'],
-            'rel': 'http://api.virtusize.com/regions',
-            'href': 'http://api.virtusize.com/regions/3'
+            "class": ["Region", "item"],
+            "rel": "http://api.virtusize.com/regions",
+            "href": "http://api.virtusize.com/regions/3"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/store-regions/6'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/store-regions/6"}
     ]
 }
 ```
@@ -393,25 +393,25 @@
 
 ```json
 {
-    'class': ['MeasurementSetRegion', 'item'],
-    'properties': {
-        'name': '38'
+    "class": ["MeasurementSetRegion", "item"],
+    "properties": {
+        "name": "38"
     },
-    'entities': [
+    "entities": [
         {
-            'class': ['Region', 'item'],
-            'rel': 'http://api.virtusize.com/regions',
-            'href': 'http://api.virtusize.com/regions/3'
+            "class": ["Region", "item"],
+            "rel": "http://api.virtusize.com/regions",
+            "href": "http://api.virtusize.com/regions/3"
         },
         {
-            'class': ['MeasurementSet', 'item'],
-            'rel': 'http://api.virtusize.com/measurement-sets',
-            'href': 'http://api.virtusize.com/measurement-sets/42'
+            "class": ["MeasurementSet", "item"],
+            "rel": "http://api.virtusize.com/measurement-sets",
+            "href": "http://api.virtusize.com/measurement-sets/42"
         },
     ],
-    'actions': [ ],
-    'links': [
-        {'rel': ['self'], 'href': 'http://api.virtusize.com/measurement-set-regions/25'}
+    "actions": [ ],
+    "links": [
+        {"rel": ["self"], "href": "http://api.virtusize.com/measurement-set-regions/25"}
     ]
 }
 ```
