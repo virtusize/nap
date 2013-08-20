@@ -11,6 +11,9 @@
 
 # Resources
 
+These resources are defined using the JSON Siren notation for hypermedia. See [Siren](https://github.com/kevinswiber/siren).
+This does not necessarily mean, that our API has to speak Siren. We could let it speak [HAL](http://stateless.co/hal_specification.html) or [Collection+JSON](http://amundsen.com/media-types/collection) instead.
+
 ##`User`
 
 ```json
