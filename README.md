@@ -56,8 +56,8 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
     "class": ["Product", "item"],
     "properties": {
         "name": "Pink sweater",
-        "owner_id": 88,
-        "ownder_type": "Brand"
+        "ownerId": 88,
+        "ownderType": "Brand"
     },
     "entities": [
         {
@@ -137,7 +137,7 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
     "class": ["StoreProduct", "item"],
     "properties": {
         "name": "Pink sweater",
-        "external_id": "SKU1234567890"
+        "externalId": "SKU1234567890"
     },
     "entities": [
         {
@@ -293,8 +293,8 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
     "class": ["Store", "item"],
     "properties": {
         "name": "Massimo Dutti",
-        "short_name": "massimo_dutti",
-        "api_key": "3d0f27de5681cc43733ee7dcc9fe3cb9351768fe"
+        "shortName": "massimo_dutti",
+        "apiKey": "3d0f27de5681cc43733ee7dcc9fe3cb9351768fe"
     },
     "entities": [
         {
