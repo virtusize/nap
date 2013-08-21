@@ -53,6 +53,39 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
 
 ```json
 {
+    "class": ["Product", "collection"],
+    "properties": {
+        "offset": 0,
+        "limit": 25
+    },
+    "entities": [
+        {
+            "class": ["Product", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/1"
+        },
+        {
+            "class": ["Product", "item"],
+            "rel": "http://api.virtusize.com/products",
+            "href": "http://api.virtusize.com/products/2"
+        },
+        "…" 
+    ],
+    "actions": [ ],
+    "links": [
+        {
+            "rel": ["self"], "href": "http://api.virtusize.com/brands/3/products",
+            "rel": ["next"], "href": "http://api.virtusize.com/brands/3/products?offset=25",
+            "rel": ["previous"], "href": false,
+            "rel": ["last"], "href": "http://api.virtusize.com/brands/3/products?offset=125",
+            "rel": ["first"], "href": "http://api.virtusize.com/brands/3/products"
+        }
+    ]
+}
+```
+
+```json
+{
     "class": ["Product", "item"],
     "properties": {
         "name": "Pink sweater",
@@ -422,4 +455,23 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
 
 
 
+##Errors
+A nice example of an error response from http://youtu.be/hdSrT4yjS1g?t=59m36s
+
+```
+POST /directories
+409 Conflict
+```
+
+```json
+{
+    "status": 409,
+    "code": 40924,
+    "property": "name",
+    "message": "A directory named 'Avengers' already exists.",
+    "developerMessage": "A directory named 'Avengers' already exists. If you
+    have a stale local cache, please expire it now.",
+    "moreInfo": "https://www.stormpath.com/docs/api/errors/40924"
+}
+```
 
