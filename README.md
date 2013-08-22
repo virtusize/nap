@@ -20,7 +20,7 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
 {
     "class": ["User", "item"],
     "properties": {
-        "name": "John",
+        "firstName": "John",
         "email": "john@virtusize.com"
     },
     "entities": [
@@ -115,7 +115,7 @@ This does not necessarily mean, that our API has to speak Siren. We could let it
 {
     "class": ["ProductType", "item"],
     "properties": {
-        "name": "dress"
+        "name": "dress",
         "requiredMeasurements": ["waist", "height", "bust"],
         "optionalMeasurements": ["hip", "sleeveOpening"],
         "maxMeasurements": {"waist": 900, "height": 1500, "bust": 750},
