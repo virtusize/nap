@@ -36,3 +36,12 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# OS X
+.DS_Store
+
+# Ignore Vim swap files.
+*~
+*.swp
+*.swo
+*.swn

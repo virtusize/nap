@@ -16,6 +16,7 @@ setup(
         'flask-sqlalchemy',
         'sqlalchemy',
         'flask-auth',
-        'colander'
+        'colander',
+        'fixture'
     ]
 )
