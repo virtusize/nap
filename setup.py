@@ -11,13 +11,8 @@ setup(
     install_requires=[
         'fixture',
         'flask',
-        'flask-restful',
-        'requests',
-        'flask-classy',
-        'flask-sqlalchemy',
         'sqlalchemy',
         'flask-auth',
-        'colander',
         'fixture'
     ]
 )
