@@ -1,9 +1,4 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-import re
-
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 
 class Model(object):
@@ -23,6 +18,3 @@ class Model(object):
     @classmethod
     def _delete(cls, id, context):
         raise NotImplementedError()
-
-
-

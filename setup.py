@@ -9,10 +9,8 @@ setup(
     packages=find_packages(),
 
     install_requires=[
-        'fixture',
-        'flask',
         'sqlalchemy',
-        'flask-auth',
-        'fixture'
+        'fixture',
+        'nose'
     ]
 )
