@@ -69,24 +69,24 @@ class BaseValidator(object):
 
 class FieldValidator(BaseValidator):
 
-    def __init__(self, field):
-        self.field = field
+    def __init__(self, field_name, **kwargs):
+        self.field_name = field_name
 
     def get_field(self, instance):
-        return getattr(instance, self.field)
+        return getattr(instance, self.field_name)
 
     def set_field(self, instance, value):
-        return setattr(instance, self.field, value)
+        return setattr(instance, self.field_name, value)
 
     def has_field(self, instance):
-        return hasattr(instance, self.field)
+        return hasattr(instance, self.field_name)
 
 
 class NotEmptyValidator(FieldValidator):
 
     def validate(self, instance):
         return self.has_field(instance) and not self.get_field(instance) is None,\
-            'Required field %s is not present' % self.field
+            'Required field %s is not present' % self.field_name
 
 
 class EqualValidator(BaseValidator):

@@ -7,7 +7,7 @@ from fixture import SQLAlchemyFixture, TrimmedNameStyle
 
 from sqlalchemy import Column, Integer, String
 
-from core.database import DbModel, engine
+from core.database import DbModel, engine, Field
 from core.validation import NotEmptyValidator
 
 
@@ -35,18 +35,16 @@ class Users(DataSet):
 
 class Store(DbModel):
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    short_name = Column(String)
+    id = Field(Integer, primary_key=True)
+    name = Field(String)
+    short_name = Field(String)
 
 
 class User(DbModel):
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String)
-
-    _validate_with = [NotEmptyValidator('name'), NotEmptyValidator('email')]
+    id = Field(Integer, primary_key=True)
+    name = Field(String, validate_with=[NotEmptyValidator])
+    email = Field(String, validate_with=[NotEmptyValidator])
 
 
 current_module = sys.modules[__name__]
