@@ -5,10 +5,10 @@ import sys
 from fixture import DataSet
 from fixture import SQLAlchemyFixture, TrimmedNameStyle
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Integer, String
 
 from core.database import DbModel, engine, Field
-from core.validation import NotEmptyValidator
+from core.validation.validators import NotNone
 
 
 class Stores(DataSet):
@@ -43,8 +43,8 @@ class Store(DbModel):
 class User(DbModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(String, validate_with=[NotEmptyValidator])
-    email = Field(String, validate_with=[NotEmptyValidator])
+    name = Field(String, validate_with=[NotNone()])
+    email = Field(String, validate_with=[NotNone])
 
 
 current_module = sys.modules[__name__]

@@ -5,21 +5,24 @@ from sqlalchemy import create_engine, event, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from core.model import Model
-from core.validation import ValidationContext, ValidationMixin, FieldValidator
+from core.validation import ValidationContext, ValidationMixin, ValueValidator
+from core.validation.validators import FieldValidator
 
 
 engine = create_engine('sqlite:///:memory:', echo=True)
 
 
+class SQLConstraintsValidator(ValueValidator):
+
+    def __init__(self, field):
+        pass
+
+    def validate(self, model_instance, field_name, value):
+        return []
+
 @event.listens_for(mapper, 'mapper_configured')
 def mapper_configured(mapper_ins, cls):
     """
-    This callback is called for each declarative class we define and
-    it instruments each class by creating and setting a _validation_context
-    property on the class.
-
-    The validators are harvested from Field instances and _validate_with
-    property on the class.
     """
     validator_list = []
 
@@ -27,10 +30,13 @@ def mapper_configured(mapper_ins, cls):
         if not isinstance(field, Field):
             continue
 
-        field_validator_class_list = field.info.pop('_validation_class_list', [])
-        field_validator_list = [FieldValidatorFactory.create_validator(validator_class, field.name, field)
-                                for validator_class in field_validator_class_list]
-        validator_list.extend(field_validator_list)
+        value_validator_list = []
+        if field.info.pop('_validate_constraints', False):
+            value_validator_list.append(SQLConstraintsValidator(field))
+
+        value_validator_list.extend(field.info.pop('_validator_list', []))
+        if value_validator_list:
+            validator_list.append(FieldValidator(field.name, *value_validator_list))
 
     if hasattr(cls, '_validate_with'):
         validator_list.extend(cls._validate_with)
@@ -40,29 +46,6 @@ def mapper_configured(mapper_ins, cls):
     validation_context.validators.extend(validator_list)
 
     setattr(cls, '_validation_context', validation_context)
-
-
-class SQLConstrainsValidator(FieldValidator):
-    """
-    TODO: Create a validator that based on the field_instance,
-    but it should not have a reference to the field, will create a memory leak.
-    """
-    def validate(self, instance):
-        return True, 'message'
-
-
-class FieldValidatorFactory(object):
-
-    @staticmethod
-    def create_validator(validator_class, field_name, field_instance):
-        """
-        Given a validator_class, return an instance of the validator,
-        with the field_name set to the name of the field.
-        But make sure the class is a FieldValidator subclass.
-        """
-        assert issubclass(validator_class, FieldValidator)
-
-        return validator_class(field_name, field_instance=field_instance)
 
 
 class Field(Column):
@@ -76,27 +59,15 @@ class Field(Column):
     validate_with array.
     """
     def __init__(self, *args, **kwargs):
-        validation_class_list = []
-        validation_class_list.extend(kwargs.pop('validate_with', []))
+        validator_list = []
+        validator_list.extend(kwargs.pop('validate_with', []))
 
-        if kwargs.pop('validate_constraints', False):
-            validation_class_list.append(SQLConstrainsValidator)
         info = kwargs.get('info', {})
-        info['_validation_class_list'] = validation_class_list
-
+        info['_validator_list'] = validator_list
+        info['_validate_constraints'] = kwargs.pop('validate_constraints', False)
         kwargs['info'] = info
 
         super(Field, self).__init__(*args, **kwargs)
-
-
-# class DeclarativeValidationMetaClass(DeclarativeMeta):
-# 
-#     def __new__(mcs, classname, bases, dct):
-# 
-#         if '_validate_with' in dct:
-#             validator_list = dct.pop('_validate_with')
-#             dct['_validation_context'] = ValidationContext(validators=validator_list)
-#         return super(DeclarativeValidationMetaClass, mcs).__new__(mcs, classname, bases, dct)
 
 
 class DbModel(Model, ValidationMixin):

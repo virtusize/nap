@@ -18,3 +18,7 @@ class Model(object):
     @classmethod
     def _delete(cls, id, context):
         raise NotImplementedError()
+
+
+class TableLessModel(Model):
+    pass
