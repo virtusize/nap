@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
+import itertools
 
-from sqlalchemy import create_engine, event, Column
+from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from core.model import Model
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
-from core.validation.validators import FieldValidator
+from core.validation.validators import FieldValidator, MaxLength, NotNone
 
 
 engine = create_engine('sqlite:///:memory:', echo=True)
@@ -15,10 +16,20 @@ engine = create_engine('sqlite:///:memory:', echo=True)
 class SQLConstraintsValidator(ValueValidator):
 
     def __init__(self, field):
-        pass
+        self.validators = []
+        if field.primary_key:
+            return
+
+        if isinstance(field.type, types.String):
+            self.validators.append(MaxLength(field.type.length))
+
+        if not field.nullable:
+            self.validators.append(NotNone())
 
     def validate(self, model_instance, field_name, value):
-        return []
+        return itertools.chain(
+            [validator.validate(model_instance, field_name, value) for validator in self.validators]
+        )
 
 @event.listens_for(mapper, 'mapper_configured')
 def mapper_configured(mapper_ins, cls):
