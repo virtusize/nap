@@ -2,7 +2,7 @@
 from core.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import IsNone, MinLength, MaxLength
+from core.validation.validators import IsNone, MinLength, MaxLength, IsType
 
 
 def assert_value_validator(validator_instance, value, expected):
@@ -26,6 +26,13 @@ def test_value_validators():
         (MinLength(2), '_' * 2, True),
         (MinLength(2), '_', False),
         (MinLength(2), '', False),
+        (IsType(str), '', True),
+        (IsType(str), u'', False),
+        (IsType(bool), '', False),
+        (IsType(unicode), '', False),
+        (IsType(unicode), u'', True),
+        (IsType(basestring), '', True),
+        (IsType(basestring), u'', True),
     ]
 
     for case in cases:

@@ -86,3 +86,16 @@ class MinLength(ValueValidator):
             return ['Field {field} is shorter than {min_length}'.format(field=field_name, min_length=self.min_length)]
 
         return []
+
+
+class IsType(ValueValidator):
+
+    def __init__(self, typ):
+        self.typ = typ
+
+    def validate(self, model_instance, field_name, value):
+        if not isinstance(value, self.typ):
+            return ['Field {field} is not of type {type}'.format(field=field_name, type=self.typ)]
+        return []
+
+OfType = IsType

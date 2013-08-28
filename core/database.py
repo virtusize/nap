@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from core.model import Model
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
-from core.validation.validators import FieldValidator, MaxLength, NotNone
+from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
 
 
 engine = create_engine('sqlite:///:memory:', echo=True)
@@ -25,6 +25,9 @@ class SQLConstraintsValidator(ValueValidator):
 
         if not field.nullable:
             self.validators.append(NotNone())
+
+        if isinstance(field.type, (types.Unicode, types.UnicodeText)):
+            self.validators.append(IsType(unicode))
 
     def validate(self, model_instance, field_name, value):
         return itertools.chain(
