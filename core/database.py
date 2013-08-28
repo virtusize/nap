@@ -61,13 +61,10 @@ def mapper_configured(mapper_ins, cls):
 
 class Field(Column):
     """
-    This is a extention for Column type that allows us to pass in a list of validator classes
+    This is a extension for Column type that allows us to pass in a list of validator classes
     to validate against.
     Example:
-        name = Field(String, validate_constraints=True, validate_with=[EnsureNotNull])
-
-    The validate_constrains keywords adds the SQLConstraintsValidator class to the
-    validate_with array.
+        name = Field(String, validate_constraints=True, validate_with=[NotNone])
     """
     def __init__(self, *args, **kwargs):
         validator_list = []
