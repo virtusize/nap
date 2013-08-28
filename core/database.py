@@ -67,11 +67,9 @@ class Field(Column):
         name = Field(String, validate_constraints=True, validate_with=[NotNone])
     """
     def __init__(self, *args, **kwargs):
-        validator_list = []
-        validator_list.extend(kwargs.pop('validate_with', []))
 
         info = kwargs.get('info', {})
-        info['_validator_list'] = validator_list
+        info['_validator_list'] = kwargs.pop('validate_with', [])
         info['_validate_constraints'] = kwargs.pop('validate_constraints', False)
         kwargs['info'] = info
 
