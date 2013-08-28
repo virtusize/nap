@@ -48,4 +48,4 @@ class User(DbModel):
 
 
 current_module = sys.modules[__name__]
-db_fixture = SQLAlchemyFixture(env=current_module, style=TrimmedNameStyle(suffix='s'), engine=engine)
+fixture_loader = SQLAlchemyFixture(env=current_module, style=TrimmedNameStyle(suffix='s'), engine=engine)

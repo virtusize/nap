@@ -36,6 +36,14 @@ class FieldValidator(ModelValidator):
         return _value_errors
 
 
+class IsNone(ValueValidator):
+
+    def validate(self, model_instance, field_name, value):
+        if not value is None:
+            return ['Field {field} must be None'.format(field=field_name)]
+        return []
+
+
 class NotNone(ValueValidator):
 
     def validate(self, model_instance, field_name, value):
@@ -59,5 +67,22 @@ class MaxLength(ValueValidator):
 
         if length > self.max_length:
             return ['Field {field} is longer than {max_length}'.format(field=field_name, max_length=self.max_length)]
+
+        return []
+
+
+class MinLength(ValueValidator):
+
+    def __init__(self, min_length):
+        self.min_length = min_length
+
+    def validate(self, model_instance, field_name, value):
+        try:
+            length = len(value)
+        except:  # TypeError
+            return ['Field {field} does not have a length'.format(field=field_name)]
+
+        if length < self.min_length:
+            return ['Field {field} is shorter than {min_length}'.format(field=field_name, min_length=self.min_length)]
 
         return []

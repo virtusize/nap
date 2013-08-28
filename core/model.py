@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from core.validation import ValidationMetaClass, ValidationMixin
 
 
 class Model(object):
@@ -20,5 +21,9 @@ class Model(object):
         raise NotImplementedError()
 
 
-class TableLessModel(Model):
-    pass
+class SimpleModel(Model, ValidationMixin):
+
+    __metaclass__ = ValidationMetaClass
+
+    def __init__(self, *args, **kwargs):
+        self.__dict__.update(kwargs)

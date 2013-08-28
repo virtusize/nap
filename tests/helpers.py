@@ -10,7 +10,6 @@ regular unittest.TestCases
 
 from nose import tools as nt
 
-from fixtures import *
 from core.database import *
 
 assert_equal = nt.assert_equal
@@ -38,8 +37,8 @@ assert_set_equal = nt.assert_set_equal
 assert_dict_equal = nt.assert_dict_equal
 
 
-def fixtures(*args):
-    return FixturesContext(*args)
+def fixtures(*args, **kwargs):
+    return FixturesContext(*args, **kwargs)
 
 
 def db(clean=False):
@@ -71,9 +70,10 @@ class FixturesContext(object):
     """
     Populates the db with all fixtures.
     """
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
+        fixture_loader = kwargs.pop('fixture_loader')
         self.fixture_list = args
-        self.data = db_fixture.data(*self.fixture_list)
+        self.data = fixture_loader.data(*self.fixture_list)
 
     def __enter__(self):
         self.data.setup()
