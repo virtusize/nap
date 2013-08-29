@@ -61,6 +61,11 @@ def mapper_configured(mapper_ins, cls):
 
     setattr(cls, '_validation_context', validation_context)
 
+    @event.listens_for(cls, 'before_insert')
+    @event.listens_for(cls, 'before_update')
+    def validate_model(mapper, connection, model_instance):
+        model_instance.validate(raise_on_error=True)
+
 
 class Field(Column):
     """
@@ -93,6 +98,7 @@ class DbModel(Model, ValidationMixin):
             name[0].lower() +
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:]) + 's'
         )
+
 
 DbModel = declarative_base(cls=DbModel)
 

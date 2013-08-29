@@ -9,9 +9,6 @@ from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int
 
 def assert_value_validator(validator_instance, value, expected):
     result = ValidationResult(validator_instance.validate(None, 'test_field', value))
-    if bool(result) != expected:
-        print str(result)
-
     assert_equals(bool(result), expected)
 
 

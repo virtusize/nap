@@ -3,7 +3,7 @@
 from core.validation import ValidationResult
 import sqlalchemy as sa
 from helpers import *
-from tests.core_database_fixtures import Users, User, fixture_loader
+from tests.core_database_fixtures import Users, User, Stores, Store, fixture_loader
 
 
 def test_fixtures_query():
@@ -14,10 +14,8 @@ def test_fixtures_query():
 
 
 def test_validate_invalid():
-
-    with db(), fixtures(Users, fixture_loader=fixture_loader):
-        john = db_session.query(User).get(Users.invalid_john.id)
-        assert_false(john.validate())
+    john = User(name='Invalid John')
+    assert_false(john.validate())
 
 
 def _assert_sql_constraints_validator(field, value, expected):
@@ -43,3 +41,19 @@ def test_sql_constraints_validator():
 
     for case in cases:
         yield (_assert_sql_constraints_validator,) + case
+
+
+@raises(ValueError)
+def test_validate_before_insert():
+    with db():
+        user = User(name='Hannes')
+        db_session.add(user)
+        db_session.commit()
+
+
+@raises(ValueError)
+def test_validate_before_insert():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        john = db_session.query(User).get(Users.john.id)
+        john.email = None
+        db_session.commit()

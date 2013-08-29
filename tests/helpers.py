@@ -35,6 +35,7 @@ assert_list_equal = nt.assert_list_equal
 assert_tuple_equal = nt.assert_tuple_equal
 assert_set_equal = nt.assert_set_equal
 assert_dict_equal = nt.assert_dict_equal
+raises = nt.raises
 
 
 def fixtures(*args, **kwargs):
