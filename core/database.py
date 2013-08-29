@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import itertools
 
 from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
@@ -20,7 +19,7 @@ class SQLConstraintsValidator(ValueValidator):
         if field.primary_key:
             return
 
-        if isinstance(field.type, types.String):
+        if isinstance(field.type, types.String) and field.type.length:
             self.validators.append(MaxLength(field.type.length))
 
         if not field.nullable:
@@ -30,9 +29,10 @@ class SQLConstraintsValidator(ValueValidator):
             self.validators.append(IsType(unicode))
 
     def validate(self, model_instance, field_name, value):
-        return itertools.chain(
-            [validator.validate(model_instance, field_name, value) for validator in self.validators]
-        )
+        errors = []
+        for v in self.validators:
+            errors.extend(v.validate(model_instance, field_name, value))
+        return errors
 
 @event.listens_for(mapper, 'mapper_configured')
 def mapper_configured(mapper_ins, cls):

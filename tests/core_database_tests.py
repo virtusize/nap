@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from core.validation import ValidationResult
+import sqlalchemy as sa
 from helpers import *
 from tests.core_database_fixtures import Users, User, fixture_loader
 
@@ -16,3 +18,28 @@ def test_validate_invalid():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         john = db_session.query(User).get(Users.invalid_john.id)
         assert_false(john.validate())
+
+
+def _assert_sql_constraints_validator(field, value, expected):
+    validator = SQLConstraintsValidator(field)
+    result = ValidationResult(validator.validate(None, 'test_field', value))
+    assert_equals(bool(result), expected)
+
+
+def test_sql_constraints_validator():
+    cases = [
+        (Field(sa.String, primary_key=True), None, True),
+        (Field(sa.String, primary_key=True), False, True),
+        (Field(sa.Unicode(10)), u'', True),
+        (Field(sa.Unicode(10)), '', False),
+        (Field(sa.UnicodeText), u'', True),
+        (Field(sa.UnicodeText), '', False),
+        (Field(sa.UnicodeText(10)), u'_' * 11, False),
+        (Field(sa.UnicodeText(10)), '', False),
+        (Field(sa.Integer, nullable=False), None, False),
+        (Field(sa.Integer, nullable=False), 0, True),
+        (Field(sa.Integer, nullable=False), 1, True),
+    ]
+
+    for case in cases:
+        yield (_assert_sql_constraints_validator,) + case

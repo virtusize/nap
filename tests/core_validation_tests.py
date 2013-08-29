@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
+
+
 from core.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import IsNone, MinLength, MaxLength, IsType
+from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int
 
 
 def assert_value_validator(validator_instance, value, expected):
     result = ValidationResult(validator_instance.validate(None, 'test_field', value))
+    if bool(result) != expected:
+        print str(result)
+
     assert_equals(bool(result), expected)
 
 
@@ -33,6 +38,16 @@ def test_value_validators():
         (IsType(unicode), u'', True),
         (IsType(basestring), '', True),
         (IsType(basestring), u'', True),
+        (Int(), '', False),
+        (Int(), u'', False),
+        (Int(), '10', False),
+        (Int(), u'10', False),
+        (Int(), 10, True),
+        (Int(min=11), 10, False),
+        (Int(max=9), 10, False),
+        (Int(min=1, max=9), 7, True),
+        (Int(min=1, max=9), 1, True),
+        (Int(min=1, max=9), 9, True),
     ]
 
     for case in cases:

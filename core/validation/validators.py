@@ -99,3 +99,23 @@ class IsType(ValueValidator):
         return []
 
 OfType = IsType
+
+
+class Int(ValueValidator):
+
+    def __init__(self, min=None, max=None):
+        self.min = min
+        self.max = max
+
+    def validate(self, model_instance, field_name, value):
+        if not isinstance(value, int):
+            return ['Field {field} is not an integer value'.format(field=field_name)]
+
+        errors = []
+        if not self.min is None and value < self.min:
+            errors.append('Field {field} must be equal or larger than {min}'.format(field=field_name, min=self.min))
+
+        if not self.max is None and value > self.max:
+            errors.append('Field {field} must be equal or smaller than {max}'.format(field=field_name, max=self.max))
+
+        return errors
