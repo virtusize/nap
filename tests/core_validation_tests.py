@@ -4,7 +4,7 @@
 from core.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int
+from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int, NotEmpty
 
 
 def assert_value_validator(validator_instance, value, expected):
@@ -45,6 +45,11 @@ def test_value_validators():
         (Int(min=1, max=9), 7, True),
         (Int(min=1, max=9), 1, True),
         (Int(min=1, max=9), 9, True),
+        (NotEmpty(), '_', True),
+        (NotEmpty(), None, False),
+        (NotEmpty(), '', False),
+        (NotEmpty(), 1123, True),
+        (NotEmpty(), ' ', True),
     ]
 
     for case in cases:
