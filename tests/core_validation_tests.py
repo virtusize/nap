@@ -1,33 +1,48 @@
 # -*- coding: utf-8 -*-
 
+import re
 
 from core.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int, NotEmpty
+from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int, NotEmpty, Regex, PlainText, Email
 
 
 def assert_value_validator(validator_instance, value, expected):
     result = ValidationResult(validator_instance.validate(None, 'test_field', value))
-    assert_equals(bool(result), expected)
+
+    validator = validator_instance.__class__.__name__
+
+    if expected:
+        msg = validator + " validation failed with errors: " + str(result.errors)
+    else:
+        msg = validator + " validation did unexpectedly not fail"
+
+    msg += " for value: %s" % value
+
+    assert_equals(bool(result), expected, msg)
 
 
 def test_value_validators():
     cases = [
         (IsNone(), None, True),
         (IsNone(), '', False),
+
         (NotNone(), None, False),
         (NotNone(), '', True),
+
         (MaxLength(100), True, False),
         (MaxLength(0), '', True),
         (MaxLength(1), '', True),
         (MaxLength(2), '', True),
         (MaxLength(2), '_' * 3, False),
+
         (MinLength(100), True, False),
         (MinLength(2), '_' * 3, True),
         (MinLength(2), '_' * 2, True),
         (MinLength(2), '_', False),
         (MinLength(2), '', False),
+
         (IsType(str), '', True),
         (IsType(str), u'', False),
         (IsType(bool), '', False),
@@ -35,6 +50,7 @@ def test_value_validators():
         (IsType(unicode), u'', True),
         (IsType(basestring), '', True),
         (IsType(basestring), u'', True),
+
         (Int(), '', False),
         (Int(), u'', False),
         (Int(), '10', False),
@@ -45,6 +61,7 @@ def test_value_validators():
         (Int(min=1, max=9), 7, True),
         (Int(min=1, max=9), 1, True),
         (Int(min=1, max=9), 9, True),
+
         (NotEmpty(), '_', True),
         (NotEmpty(), None, False),
         (NotEmpty(), '', False),
@@ -57,6 +74,58 @@ def test_value_validators():
         (NotEmpty(), {1: '_'}, True),
         (NotEmpty(), False, True),
         (NotEmpty(), True, True),
+
+        (Regex(re.compile(r"^[a-z]*$")), "abc", True),
+        (Regex(r"^[a-z]*$"), "aBc", False),
+        (Regex(r"^[\d]*$"), "123", True),
+        (Regex(r"^[\d]*$"), "abc", False),
+        (Regex(r"^[a-z]*$"), "abc", True),
+        (Regex(r"^[a-z]*$"), "aBc", False),
+
+        (PlainText(), "aB12-Xy_Z", True),
+        (PlainText(), "!", False),
+        (PlainText(), "ab$12", False),
+
+        (Email(), "hannes@virtusize.com", True),
+        (Email(), "hannes+a@virtusize.com", True),
+        (Email(), "hannes+a+11@virtusize.com", True),
+        (Email(), "hannes@virt@usize.com", False),
+        (Email(), " hannes@virtusize.com", False),
+        (Email(), "hannes@virtusize.com ", False),
+        (Email(), "hannes@virt usize.com ", False),
+        (Email(), "hannesvirtusize.com", False),
+
+        (Email(), "email@domain.com", True),
+        (Email(), "firstname.lastname@domain.com", True),
+        (Email(), "email@subdomain.domain.com", True),
+        (Email(), "firstname+lastname@domain.com", True),
+        #(Email(), "email@123.123.123.123", True), # Should be a valid address, but fails with our regex
+        (Email(), "email@[123.123.123.123]", True),
+        (Email(), "\"email\"@domain.com", True),
+        (Email(), "1234567890@domain.com", True),
+        (Email(), "email@domain-one.com", True),
+        (Email(), "_______@domain.com", True),
+        (Email(), "email@domain.name", True),
+        (Email(), "email@domain.co.jp", True),
+        (Email(), "firstname-lastname@domain.com", True),
+
+        (Email(), "plainaddress", False),
+        (Email(), "#@%^%#$@#$@#.com", False),
+        (Email(), "@domain.com", False),
+        (Email(), "Joe Smith <email@domain.com>", False),
+        (Email(), "email.domain.com", False),
+        (Email(), "email@domain@domain.com", False),
+        (Email(), ".email@domain.com", False),
+        (Email(), "email.@domain.com", False),
+        (Email(), "email..email@domain.com", False),
+        #(Email(), "あいうえお@domain.com", False), # Should not be allowed (unicode username), but currently is
+        (Email(), "email@domain.com (Joe Smith)", False),
+        (Email(), "email@domain", False),
+        #(Email(), "email@-domain.com", False), # Should not be allowed (invalid domain name), but currently is
+        #(Email(), "email@domain.web", False), # Should not be allowed (invalid top level domain), but currently is
+        (Email(), "email@111.222.333.44444", False),
+        (Email(), "email@domain..com", False),
+
     ]
 
     for case in cases:

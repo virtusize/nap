@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 from core.validation import ModelValidator, ValueValidator
 
 
@@ -128,3 +130,36 @@ class Int(ValueValidator):
             errors.append('Field {field} must be equal or smaller than {max}'.format(field=field_name, max=self.max))
 
         return errors
+
+
+class Regex(ValueValidator):
+    
+    message = 'Field {field} does not match'
+
+    def __init__(self, regex):
+        self.regex = regex if not isinstance(regex, basestring) else re.compile(regex)
+
+    def validate(self, model_instance, field_name, value):
+        if not self.regex.search(value):
+            return [self.message.format(field=field_name)]
+
+
+class PlainText(Regex):
+
+    message = 'Field {field} can only contain letters, numbers, underscores and dashes'
+
+    def __init__(self):
+        super(self.__class__, self).__init__(r"^[a-zA-Z_\-0-9]*$")
+
+
+class Email(Regex):
+
+    message = 'Field {field} is not a valid email'
+
+    def __init__(self):
+        # Pattern from http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+        # See the pattern visually at http://www.regexper.com
+        
+        regex = re.compile(r"^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-z\-0-9]+\.)+[a-z]{2,}))$", re.IGNORECASE)
+
+        super(self.__class__, self).__init__(regex)
