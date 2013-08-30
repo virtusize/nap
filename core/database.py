@@ -101,6 +101,9 @@ class DbModel(Model, ValidationMixin):
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:]) + 's'
         )
 
+    def to_dict(self):
+        return {k: v for k, v in self.__dict__.iteritems() if k != '_sa_instance_state'}
+
 
 DbModel = declarative_base(cls=DbModel)
 

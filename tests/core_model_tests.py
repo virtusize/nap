@@ -90,3 +90,10 @@ def test_inheritance_with_validation():
     assert_true(valid_instance.validate())
     assert_false(invalid_instance.validate())
     assert_equal(len(invalid_instance.validate().errors), 2)
+
+
+def test_to_dict():
+    model = AModel(id=1, name='foo', admin=True)
+    assert_equal(model.to_dict(), {'id': 1, 'name': 'foo', 'admin': True})
+    assert_equal(model.to_dict(), model.__dict__)
+

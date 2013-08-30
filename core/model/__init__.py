@@ -20,6 +20,9 @@ class Model(object):
     def _delete(cls, id, context):
         raise NotImplementedError()
 
+    def to_dict(self):
+        return self.__dict__
+
 
 class SimpleModel(Model, ValidationMixin):
 

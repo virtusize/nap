@@ -57,3 +57,10 @@ def test_validate_before_insert():
         john = db_session.query(User).get(Users.john.id)
         john.email = None
         db_session.commit()
+
+
+def test_to_dict():
+    john = User(name='John Doe', email='john@doe.com')
+    assert_equal(john.to_dict(), {'name': 'John Doe', 'email': 'john@doe.com'})
+    assert_not_equal(john.to_dict(), john.__dict__)
+
