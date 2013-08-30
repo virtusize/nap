@@ -34,6 +34,7 @@ class SQLConstraintsValidator(ValueValidator):
             errors.extend(v.validate(model_instance, field_name, value))
         return errors
 
+
 @event.listens_for(mapper, 'mapper_configured')
 def mapper_configured(mapper_ins, cls):
     """
@@ -64,7 +65,8 @@ def mapper_configured(mapper_ins, cls):
     @event.listens_for(cls, 'before_insert')
     @event.listens_for(cls, 'before_update')
     def validate_model(mapper, connection, model_instance):
-        model_instance.validate(raise_on_error=True)
+        if isinstance(model_instance, ValidationMixin):
+            model_instance.validate(raise_on_error=True)
 
 
 class Field(Column):
