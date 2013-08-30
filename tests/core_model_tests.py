@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from unittest import skip
 from core.model import SimpleModel
-from core.validation.validators import MinLength
+from core.validation.validators import MinLength, Email
 from tests.helpers import *
 
 
@@ -31,7 +31,39 @@ def test_model_with_validation():
 
     assert_true(valid_instance.validate())
     assert_false(invalid_instance.validate())
-    assert_true(len(invalid_instance.validate().errors) == 3)
+    assert_equal(len(invalid_instance.validate().errors), 3)
+
+
+def test_consecutive_validations():
+    class VModel(SimpleModel):
+
+        _validate_with = [
+            FieldValidator('id', NotNone),
+        ]
+
+    valid_instance = VModel(id=1)
+    invalid_instance = VModel(id=None)
+    valid_instance.validate()
+    invalid_instance.validate()
+
+    assert_true(valid_instance.validate())
+    assert_false(invalid_instance.validate())
+    assert_equal(len(valid_instance.validate().errors), 0)
+    assert_equal(len(invalid_instance.validate().errors), 1)
+
+
+def test_model_with_notnone_and_email():
+    class VModel(SimpleModel):
+
+        _validate_with = [
+            FieldValidator('email', NotNone, Email)
+        ]
+
+    valid_instance = VModel(email='hannes@virtusize.com')
+    invalid_instance = VModel(email='hannes@@virtusize.com')
+    assert_true(valid_instance.validate())
+    assert_false(invalid_instance.validate())
+    assert_equal(len(invalid_instance.validate().errors), 1)
 
 
 @skip

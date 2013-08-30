@@ -14,6 +14,7 @@ def assert_value_validator(validator_instance, value, expected):
     validator = validator_instance.__class__.__name__
 
     if expected:
+        assert_list_equal(result.errors, [])
         msg = validator + " validation failed with errors: " + str(result.errors)
     else:
         msg = validator + " validation did unexpectedly not fail"

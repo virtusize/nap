@@ -10,7 +10,7 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy import Integer, String, event
 
 from core.database import DbModel, engine, Field
-from core.validation.validators import NotNone
+from core.validation.validators import NotNone, Email
 
 
 class Stores(DataSet):
@@ -46,7 +46,7 @@ class User(DbModel):
 
     id = Field(Integer, primary_key=True)
     name = Field(String, validate_with=[NotNone()])
-    email = Field(String, validate_with=[NotNone])
+    email = Field(String, validate_with=[NotNone(), Email])
     store_id = Field(Integer, ForeignKey('stores.id'), nullable=True)
 
     store = relationship(Store, backref=backref('users'))

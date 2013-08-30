@@ -140,8 +140,9 @@ class Regex(ValueValidator):
         self.regex = regex if not isinstance(regex, basestring) else re.compile(regex)
 
     def validate(self, model_instance, field_name, value):
-        if not self.regex.search(value):
+        if value is not None and not self.regex.search(value):
             return [self.message.format(field=field_name)]
+        return []
 
 
 class PlainText(Regex):
