@@ -50,6 +50,13 @@ def test_value_validators():
         (NotEmpty(), '', False),
         (NotEmpty(), 1123, True),
         (NotEmpty(), ' ', True),
+        (NotEmpty(), 0, True),
+        (NotEmpty(), [], False),
+        (NotEmpty(), ["_"], True),
+        (NotEmpty(), {}, False),
+        (NotEmpty(), {1: '_'}, True),
+        (NotEmpty(), False, True),
+        (NotEmpty(), True, True),
     ]
 
     for case in cases:

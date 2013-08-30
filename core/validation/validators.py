@@ -52,15 +52,13 @@ class NotNone(ValueValidator):
         return []
 
 
-class NotEmpty(NotNone):
+class NotEmpty(ValueValidator):
 
     def validate(self, model_instance, field_name, value):
-        errors = super(self.__class__, self).validate(model_instance, field_name, value)
+        if value != 0 and not value:
+            return ['Field {field} is not allowed to be empty'.format(field=field_name)]
 
-        if str(value) == '':
-            errors.append('Field {field} is not allowed to be empty'.format(field=field_name))
-
-        return errors
+        return []
 
 Required = NotEmpty
 
