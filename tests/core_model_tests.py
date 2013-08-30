@@ -57,4 +57,4 @@ def test_inheritance_with_validation():
 
     assert_true(valid_instance.validate())
     assert_false(invalid_instance.validate())
-    assert_true(len(invalid_instance.validate().errors) == 2)
+    assert_equal(len(invalid_instance.validate().errors), 2)
