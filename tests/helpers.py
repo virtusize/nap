@@ -38,6 +38,12 @@ assert_dict_equal = nt.assert_dict_equal
 raises = nt.raises
 
 
+engine = create_engine('sqlite:///:memory:', echo=True)
+
+
+db_session = scoped_session(sessionmaker(bind=engine))
+
+
 def fixtures(*args, **kwargs):
     return FixturesContext(*args, **kwargs)
 

@@ -7,10 +7,11 @@ from fixture import SQLAlchemyFixture, TrimmedNameStyle
 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import ForeignKey
-from sqlalchemy import Integer, String, event
+from sqlalchemy import Integer, String
 
-from core.database import DbModel, engine, Field
+from core.database import DbModel, Field
 from core.validation.validators import NotNone, Email
+from tests.helpers import engine
 
 
 class Stores(DataSet):

@@ -4,12 +4,9 @@ import re
 from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
-from core.model import Model
+from core.model import Model, serialization
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
 from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
-
-
-engine = create_engine('sqlite:///:memory:', echo=True)
 
 
 class SQLConstraintsValidator(ValueValidator):
@@ -102,9 +99,7 @@ class DbModel(Model, ValidationMixin):
         )
 
     def to_dict(self):
-        return {k: v for k, v in self.__dict__.iteritems() if k != '_sa_instance_state'}
+        return serialization.exclude(['_sa_instance_state'])(self)
 
 
 DbModel = declarative_base(cls=DbModel)
-
-db_session = scoped_session(sessionmaker(bind=engine))
