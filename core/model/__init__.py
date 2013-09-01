@@ -1,27 +1,13 @@
 # -*- coding: utf-8 -*-
+from core.authorization import Guard
+from core.model.serialization import dict_or_state
 from core.validation import ValidationMetaClass, ValidationMixin
 
 
 class Model(object):
 
-    @classmethod
-    def _create(cls, data, context):
-        raise NotImplementedError()
-
-    @classmethod
-    def _read(cls, id, context):
-        raise NotImplementedError()
-
-    @classmethod
-    def _update(cls, id, data, context):
-        raise NotImplementedError()
-
-    @classmethod
-    def _delete(cls, id, context):
-        raise NotImplementedError()
-
-    def to_dict(self):
-        return self.__dict__
+    def to_dict(self, strategy=dict_or_state):
+        return strategy(self)
 
 
 class SimpleModel(Model, ValidationMixin):
@@ -30,3 +16,16 @@ class SimpleModel(Model, ValidationMixin):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
+
+
+class ModelGuard(Guard):
+
+    def can(self, identity, action, model_instance, **kwargs):
+        return False
+
+
+class Actions:
+    create = 'create'
+    read = 'read'
+    update = 'update'
+    delete = 'delete'
