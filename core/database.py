@@ -7,6 +7,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from core.model import Model, serialization
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
 from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
+from core.model.serialization import exclude
 
 
 class SQLConstraintsValidator(ValueValidator):
@@ -98,8 +99,8 @@ class DbModel(Model, ValidationMixin):
             re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:]) + 's'
         )
 
-    def to_dict(self):
-        return serialization.exclude(['_sa_instance_state'])(self)
+    def to_dict(self, strategy=exclude(['_sa_instance_state'])):
+        return strategy(self)
 
 
 DbModel = declarative_base(cls=DbModel)

@@ -10,7 +10,7 @@ I would like to have something like this in the business layer:
 ModelGuard():
 
     guest = Role()
-    guast.can(Action.read, AnyModel)
+    guest.can(Action.read, AnyModel)
 
     admin = Role()
     admin.can(Actions.manage, Store)
