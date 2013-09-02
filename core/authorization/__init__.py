@@ -1,44 +1,65 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""
-Taking inspiration from rails and other frameworks:
 
-
-I would like to have something like this in the business layer:
-
-ModelGuard():
-
-    guest = Role()
-    guest.can(Action.read, AnyModel)
-
-    admin = Role()
-    admin.can(Actions.manage, Store)
-
-    store_owner = Role()
-    store_owner.can(Actions.manage, Store, if=is_store_owner)
-
-
-guard = ModelGuard()
-
-guard.can(user, Actions.read, model) --> True/False
-
-"""
-
-
-class Identity:
-    """
-    Identity is the base class for users, roles, services, etc.
-    Identity provides a set of permissions.
-    """
-    pass
+def subject_alias(subject):
+    if isinstance(subject, basestring):
+        return subject
+    elif isinstance(subject, type):
+        return subject.__name__.lower()
+    else:
+        return type(subject).__name__.lower()
 
 
 class Guard:
     """
-    Default guard, subclass this to implement
-    resource specific guards.
+    Identity is the base class for users, roles, services, etc.
+    Identity provides a set of permissions.
     """
 
-    def can(self, *args, **kwargs):
-        raise NotImplementedError
+    def can(self, identity, action, subject):
+        subject_name = subject_alias(subject)
+        key_set = set([(action, subject_name), (action, 'all'), ('manage', subject_name), ('manage', 'all')])
+
+        for role in identity.roles:
+            for permission in role.permissions:
+                if permission.key in key_set and permission.granted_on(subject, identity):
+                    return True
+
+        return False
+
+
+class Identity:
+
+    def __init__(self, roles):
+        self.roles = roles
+
+    @property
+    def roles(self):
+        return self.roles
+
+
+class Role:
+    def __init__(self, *args, **kwargs):
+        self.permissions = []
+
+    def grant(self, *args, **kwargs):
+        self.permissions.append(Permission(*args, **kwargs))
+
+
+def true_condition(self, *args, **kwargs):
+    return True
+
+
+class Permission:
+
+    def __init__(self, action, subject, condition=true_condition):
+        self.action = action
+        self.subject = subject_alias(subject)
+        self.condition = condition
+
+    @property
+    def key(self):
+        return (self.action, self.subject)
+
+    def granted_on(self, subject, identity):
+        return self.condition(subject, identity)

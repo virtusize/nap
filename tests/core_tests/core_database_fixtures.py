@@ -19,6 +19,7 @@ class Stores(DataSet):
         id = 1
         name = 'Virtusize Demo Store'
         short_name = 'virtusize'
+        api_key = 'asdf1234'
 
 
 class Users(DataSet):
@@ -41,6 +42,7 @@ class Store(DbModel):
     id = Field(Integer, primary_key=True)
     name = Field(String)
     short_name = Field(String)
+    api_key = Field(String)
 
 
 class User(DbModel):

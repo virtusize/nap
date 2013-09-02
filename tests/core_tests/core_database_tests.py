@@ -2,8 +2,8 @@
 
 from core.validation import ValidationResult
 import sqlalchemy as sa
-from helpers import *
-from tests.core_database_fixtures import Users, User, fixture_loader
+from tests.helpers import *
+from tests.core_tests.core_database_fixtures import Users, User, fixture_loader
 
 
 def test_fixtures_query():

@@ -90,14 +90,7 @@ class DbModel(Model, ValidationMixin):
     """
     @declared_attr
     def __tablename__(cls):
-        """
-        Convert CamelCase class name to underscores_between_words (plural) table name.
-        """
-        name = cls.__name__
-        return (
-            name[0].lower() +
-            re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:]) + 's'
-        )
+        return cls.api_name()
 
     def to_dict(self, strategy=exclude(['_sa_instance_state'])):
         return strategy(self)
