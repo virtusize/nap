@@ -30,7 +30,7 @@ class SimpleModelStore():
 
     def __init__(self, model_cls):
         self._model_cls = model_cls
-        self._store = {}
+        self.clear()
 
     def add(self, model):
         self._check_model(model)
@@ -54,8 +54,21 @@ class SimpleModelStore():
                 return model
         return None
 
+    def delete(self, id):
+        if id in self._store:
+            del(self._store[id])
+
+    def clear(self):
+        self._store = {}
+
     def count(self):
         return len(self._store)
+
+    def empty(self):
+        return self.count() == 0
+
+    def next_id(self):
+        return 1 if self.empty() else max(self._store.keys())+1
 
     def _check_model(self, model):
         if not isinstance(model, SimpleModel):
@@ -64,5 +77,8 @@ class SimpleModelStore():
         if not isinstance(model, self._model_cls):
             raise TypeError('Model must be of type %s' % self._model_cls.__name__)
 
-        if not hasattr(model, 'id'):
-            raise AttributeError('Model must have at least the property "id"')
+        if hasattr(model, 'id'):
+            if model.id in self._store:
+                raise UserWarning('A model with id %s already exists in this store' % model.id)
+        else:
+            model.id = self.next_id()

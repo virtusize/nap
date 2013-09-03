@@ -126,6 +126,7 @@ class Things(SimpleModelStore):
 def test_simple_model_store_create():
     things = Things(Thing)
     assert_equal(things.count(), 0)
+    assert_true(things.empty())
 
 
 def test_simple_model_store_add():
@@ -139,6 +140,15 @@ def test_simple_model_store_add():
     things.add(thing_two)
     assert_equal(things.count(), 2)
 
+
+def test_simple_model_store_add():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add(thing_one)
+    assert_equal(things.count(), 1)
+
     things.add(thing_two)
     assert_equal(things.count(), 2)
 
@@ -147,9 +157,6 @@ def test_simple_model_store_add_all():
     things = Things(Thing)
     thing_one = Thing(id=1, name='Thing One')
     thing_two = Thing(id=2, name='Thing Two')
-
-    things.add_all([thing_one, thing_two])
-    assert_equal(things.count(), 2)
 
     things.add_all([thing_one, thing_two])
     assert_equal(things.count(), 2)
@@ -206,9 +213,94 @@ def test_simple_model_store_add_all_wrong_model():
     things.add_all([wrong_model])
 
 
-@raises(AttributeError)
+@raises(UserWarning)
+def test_simple_model_store_add_same_id():
+    things = Things(Thing)
+    things.add(Thing(name='A name'))
+
+    things.add(Thing(id=1, name='B name'))
+
+
 def test_simple_model_store_missing_id():
     things = Things(Thing)
-    model = Thing(name='Missing something')
+    model = Thing(name='Missing id')
 
     things.add(model)
+    assert_equal(things.count(), 1)
+    assert_equal(model.id, 1)
+
+    assert_equal(things.get(1), model)
+
+    model = Thing(name="Another missing id")
+    things.add(model)
+    assert_equal(things.count(), 2)
+    assert_equal(model.id, 2)
+
+
+def test_simple_model_delete():
+    things = Things(Thing)
+    things.add_all([
+        Thing(name='One'),
+        Thing(name='Two'),
+        Thing(name='Three')
+    ])
+
+    assert_equal(things.count(), 3)
+
+    things.delete(3)
+    assert_equal(things.count(), 2)
+
+    things.delete(1)
+    assert_equal(things.count(), 1)
+
+    things.add_all([
+        Thing(name='One'),
+        Thing(name='Two'),
+        Thing(name='Three')
+    ])
+
+    assert_equal(things.count(), 4)
+
+    things.delete(1)
+
+    assert_equal(things.count(), 4)
+
+    things.clear()
+    assert_true(things.empty())
+
+
+def test_simple_model_next_id():
+    things = Things(Thing)
+
+    assert_equal(things.next_id(), 1)
+
+    things.add_all([
+        Thing(name='One'),
+        Thing(name='Two'),
+        Thing(name='Three')
+    ])
+
+    assert_equal(things.get(1).name, 'One')
+    assert_equal(things.get(2).name, 'Two')
+    assert_equal(things.get(3).name, 'Three')
+
+    assert_equal(things.count(), 3)
+    assert_equal(things.next_id(), 4)
+
+    things.delete(3)
+
+    assert_equal(things.count(), 2)
+    assert_equal(things.next_id(), 3)
+
+    things.delete(1)
+
+    assert_equal(things.count(), 1)
+    assert_equal(things.next_id(), 3)
+
+    things.add(Thing(name='Four3'))
+
+    assert_equal(things.count(), 2)
+    assert_equal(things.next_id(), 4)
+    assert_equal(things.get(3).name, 'Four3')
+
+
