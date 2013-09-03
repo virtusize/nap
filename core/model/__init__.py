@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
-
 from inflection import underscore, pluralize
 from core.model.serialization import dict_or_state
 from core.validation import ValidationMetaClass, ValidationMixin
@@ -26,3 +24,45 @@ class SimpleModel(Model, ValidationMixin):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
+
+
+class SimpleModelStore():
+
+    def __init__(self, model_cls):
+        self._model_cls = model_cls
+        self._store = {}
+
+    def add(self, model):
+        self._check_model(model)
+
+        self._store[model.id] = model
+
+    def add_all(self, models):
+        for model in models:
+            self.add(model)
+
+    def get_all(self):
+        return self._store.values()
+
+    def get(self, id):
+        return self._store[id]
+
+    def get_by(self, key, value):
+        for model in self._store.values():
+            dct = model.to_dict()
+            if key in dct and dct[key] == value:
+                return model
+        return None
+
+    def count(self):
+        return len(self._store)
+
+    def _check_model(self, model):
+        if not isinstance(model, SimpleModel):
+            raise TypeError('Model must be of type SimpleModel')
+
+        if not isinstance(model, self._model_cls):
+            raise TypeError('Model must be of type %s' % self._model_cls.__name__)
+
+        if not hasattr(model, 'id'):
+            raise AttributeError('Model must have at least the property "id"')

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import skip
-from core.model import SimpleModel
-from core.validation.validators import MinLength, Email
+from core.model import SimpleModel, SimpleModelStore
+from core.validation.validators import MinLength, Email, Int
 from tests.helpers import *
 
 
@@ -110,3 +110,105 @@ def test_api_name():
     class Person(SimpleModel):
         pass
     assert_equal(Person.api_name(), 'people')
+
+
+class Thing(SimpleModel):
+
+    _validate_with = [
+        FieldValidator('id', NotNone, Int)
+    ]
+
+
+class Things(SimpleModelStore):
+    pass
+
+
+def test_simple_model_store_create():
+    things = Things(Thing)
+    assert_equal(things.count(), 0)
+
+
+def test_simple_model_store_add():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add(thing_one)
+    assert_equal(things.count(), 1)
+
+    things.add(thing_two)
+    assert_equal(things.count(), 2)
+
+    things.add(thing_two)
+    assert_equal(things.count(), 2)
+
+
+def test_simple_model_store_add_all():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add_all([thing_one, thing_two])
+    assert_equal(things.count(), 2)
+
+    things.add_all([thing_one, thing_two])
+    assert_equal(things.count(), 2)
+
+
+def test_simple_model_store_get():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add_all([thing_one, thing_two])
+
+    assert_is_instance(things.get(1), Thing)
+    assert_equal(things.get(1).name, 'Thing One')
+
+
+def test_simple_model_store_get_all():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add_all([thing_one, thing_two])
+
+    assert_list_equal(things.get_all(), [thing_one, thing_two])
+
+
+def test_simple_model_store_get_by():
+    things = Things(Thing)
+    thing_one = Thing(id=1, name='Thing One')
+    thing_two = Thing(id=2, name='Thing Two')
+
+    things.add_all([thing_one, thing_two])
+
+    assert_equal(things.get_by('name', 'Thing One').id, 1)
+    assert_equal(things.get_by('name', 'Thing Two').id, 2)
+
+    assert_is_none(things.get_by('name', 'Not there'))
+    assert_is_none(things.get_by('not_a_property', 'Thing One'))
+
+
+@raises(TypeError)
+def test_simple_model_store_add_wrong_model():
+    things = Things(Thing)
+    wrong_model = AModel(id=1, name='Plain wrong')
+
+    things.add(wrong_model)
+
+
+@raises(TypeError)
+def test_simple_model_store_add_all_wrong_model():
+    things = Things(Thing)
+    wrong_model = AModel(id=1, name='Plain wrong')
+
+    things.add_all([wrong_model])
+
+
+@raises(AttributeError)
+def test_simple_model_store_missing_id():
+    things = Things(Thing)
+    model = Thing(name='Missing something')
+
+    things.add(model)
