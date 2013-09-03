@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+from inflection import underscore, pluralize
 from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
@@ -90,7 +91,7 @@ class DbModel(Model, ValidationMixin):
     """
     @declared_attr
     def __tablename__(cls):
-        return cls.api_name()
+        return underscore(pluralize(cls.__name__))
 
     def to_dict(self, strategy=exclude(['_sa_instance_state'])):
         return strategy(self)
