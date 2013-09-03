@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import skip
-from core.model import SimpleModel, ImplicitModelStore
+from core.model import Model, Storage
 from core.validation.validators import MinLength, Email, Int
 from tests.helpers import *
 
 
-class AModel(SimpleModel):
+class AModel(Model):
     pass
 
 
@@ -18,7 +18,7 @@ def test_assignment_of_attributes():
 
 
 def test_model_with_validation():
-    class VModel(SimpleModel):
+    class VModel(Model):
 
         _validate_with = [
             FieldValidator('id', NotNone),
@@ -35,7 +35,7 @@ def test_model_with_validation():
 
 
 def test_consecutive_validations():
-    class VModel(SimpleModel):
+    class VModel(Model):
 
         _validate_with = [
             FieldValidator('id', NotNone),
@@ -53,7 +53,7 @@ def test_consecutive_validations():
 
 
 def test_model_with_notnone_and_email():
-    class VModel(SimpleModel):
+    class VModel(Model):
 
         _validate_with = [
             FieldValidator('email', NotNone, Email)
@@ -72,7 +72,7 @@ def test_inheritance_with_validation():
     This fails, but I am not sure on how to make this work, pretty hairy
     with meta-classes and inheritance.. =(
     """
-    class V1Model(SimpleModel):
+    class V1Model(Model):
 
         _validate_with = [
             FieldValidator('name', NotNone, MinLength(5)),
@@ -98,11 +98,11 @@ def test_to_dict():
     assert_equal(model.to_dict(), model.__dict__)
 
 
-class Thing(SimpleModel):
+class Thing(Model):
     pass
 
 def test_simple_model_store_get():
-    class Things(ImplicitModelStore):
+    class Things(Storage):
         thing_one = Thing(id=1, name='Thing One')
         thing_two = Thing(id=2, name='Thing Two')
 
@@ -113,7 +113,7 @@ def test_simple_model_store_get():
 
 
 def test_simple_model_store_get_all():
-    class Things(ImplicitModelStore):
+    class Things(Storage):
         thing_one = Thing(id=1, name='Thing One')
         thing_two = Thing(id=2, name='Thing Two')
 
@@ -121,7 +121,7 @@ def test_simple_model_store_get_all():
 
 
 def test_simple_model_store_get_by():
-    class Things(ImplicitModelStore):
+    class Things(Storage):
         thing_one = Thing(id=1, name='Thing One')
         thing_two = Thing(id=2, name='Thing Two')
 
@@ -133,10 +133,10 @@ def test_simple_model_store_get_by():
 
 
 def test_create_implicit_store():
-    class Store(SimpleModel):
+    class Store(Model):
         pass
 
-    class Stores(ImplicitModelStore):
+    class Stores(Storage):
         virtusize = Store(id=1, name='virtusize')
 
     assert_is_not_none(Stores.virtusize)

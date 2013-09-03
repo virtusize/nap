@@ -85,9 +85,9 @@ class Field(Column):
         super(Field, self).__init__(*args, **kwargs)
 
 
-class DbModel(Model, ValidationMixin):
+class SAModel(ValidationMixin):
     """
-    Base class for DB Models
+    Base class for SqlAlchemy Models
     """
     @declared_attr
     def __tablename__(cls):
@@ -97,4 +97,4 @@ class DbModel(Model, ValidationMixin):
         return strategy(self)
 
 
-DbModel = declarative_base(cls=DbModel)
+SAModel = declarative_base(cls=SAModel)

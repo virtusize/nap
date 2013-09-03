@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from core.authorization import Guard, Identity, Role, Permission, subject_alias
-from core.model import SimpleModel
+from core.model import Model
 from tests.helpers import *
 
 
-class Store(SimpleModel):
+class Store(Model):
     pass 
 
 class AnyIdentity():

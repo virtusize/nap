@@ -65,9 +65,9 @@ class DbContext(object):
 
     def __enter__(self):
         if self._clean:
-            DbModel.metadata.drop_all(engine)
+            SAModel.metadata.drop_all(engine)
 
-        DbModel.metadata.create_all(engine)
+        SAModel.metadata.create_all(engine)
 
     def __exit__(self, type, value, traceback):
         db_session.remove()

@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy import Integer, String
 
-from core.database import DbModel, Field
+from core.database import SAModel, Field
 from core.validation.validators import NotNone, Email
 from tests.helpers import engine
 
@@ -37,7 +37,7 @@ class Users(DataSet):
         store = Stores.virtusize
 
 
-class Store(DbModel):
+class Store(SAModel):
 
     id = Field(Integer, primary_key=True)
     name = Field(String)
@@ -45,7 +45,7 @@ class Store(DbModel):
     api_key = Field(String)
 
 
-class User(DbModel):
+class User(SAModel):
 
     id = Field(Integer, primary_key=True)
     name = Field(String, validate_with=[NotNone()])

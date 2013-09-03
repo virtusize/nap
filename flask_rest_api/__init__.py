@@ -14,8 +14,7 @@ class Api(Blueprint):
                                   url_prefix=prefix + '/v' + str(version))
 
 
-
-class ModelController(MethodView):
+class ModelView(MethodView):
     id_type = 'int'
 
     @classmethod
@@ -43,7 +42,7 @@ class ModelController(MethodView):
         api.add_url_rule(endpoint_prefix, view_func=view)
 
 
-class ImplicitModelController(ModelController):
+class ImplicitModelView(ModelView):
 
     def get(self, id=None):
         if id is None:

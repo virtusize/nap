@@ -4,21 +4,18 @@ from core.model.serialization import dict_or_state
 from core.validation import ValidationMetaClass, ValidationMixin
 
 
-class Model(object):
-
-    def to_dict(self, strategy=dict_or_state):
-        return strategy(self)
-
-
-class SimpleModel(Model, ValidationMixin):
+class Model(ValidationMixin):
 
     __metaclass__ = ValidationMetaClass
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
 
+    def to_dict(self, strategy=dict_or_state):
+        return strategy(self)
 
-class ImplicitModelStore:
+
+class Storage:
 
     @classmethod
     def _all(cls):
