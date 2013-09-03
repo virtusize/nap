@@ -97,3 +97,16 @@ def test_to_dict():
     assert_equal(model.to_dict(), {'id': 1, 'name': 'foo', 'admin': True})
     assert_equal(model.to_dict(), model.__dict__)
 
+
+def test_api_name():
+    class AwesomeOctopus(SimpleModel):
+        pass
+    assert_equal(AwesomeOctopus.api_name(), 'awesome_octopi')
+
+    class GreyhoundDog(SimpleModel):
+        pass
+    assert_equal(GreyhoundDog.api_name(), 'greyhound_dogs')
+
+    class Person(SimpleModel):
+        pass
+    assert_equal(Person.api_name(), 'people')

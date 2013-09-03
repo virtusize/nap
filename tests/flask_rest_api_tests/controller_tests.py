@@ -12,8 +12,21 @@ class Store(SimpleModel):
 
 api = Api('api', '/api', 1)
 
-api.add_controller(Controller(model=Store))
+controller = Controller(model=Store)
+api.add_controller(controller)
 
 app = flask.Flask(__name__)
 
 app.register_blueprint(api)
+
+
+def test_api_init():
+    assert_equal(api.url_prefix, '/api/v1')
+    assert_equal(api.name, 'api')
+    assert_equal(api.import_name, 'api')
+
+
+def test_controller_init():
+    assert_equal(controller.endpoint, '/stores/')
+
+

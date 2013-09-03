@@ -3,7 +3,7 @@
 from core.validation import ValidationResult
 import sqlalchemy as sa
 from tests.helpers import *
-from tests.core_tests.core_database_fixtures import Users, User, fixture_loader
+from tests.core_tests.core_database_fixtures import Users, User, Store, fixture_loader
 
 
 def test_fixtures_query():
@@ -64,3 +64,7 @@ def test_to_dict():
     assert_equal(john.to_dict(), {'name': 'John Doe', 'email': 'john@doe.com'})
     assert_not_equal(john.to_dict(), john.__dict__)
 
+
+def test_tablename():
+    assert_equal(Store.__tablename__, 'stores')
+    assert_equal(User.__tablename__, 'users')

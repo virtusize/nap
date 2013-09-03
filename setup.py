@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'flask',
         'fixture',
+        'inflection',
         'nose',
         'sqlalchemy'
     ]
