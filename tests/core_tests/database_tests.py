@@ -3,7 +3,7 @@
 from core.validation import ValidationResult
 import sqlalchemy as sa
 from tests.helpers import *
-from tests.core_tests.core_database_fixtures import Users, User, Store, fixture_loader
+from tests.core_tests.database_fixtures import Users, User, Store, fixture_loader
 
 
 def test_fixtures_query():
