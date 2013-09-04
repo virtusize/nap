@@ -68,3 +68,24 @@ def test_to_dict():
 def test_tablename():
     assert_equal(Store.__tablename__, 'stores')
     assert_equal(User.__tablename__, 'users')
+
+
+def test_controller():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = SAModelController(User, db_session)
+        user = c.read(1)
+        assert_is_not_none(user)
+
+        email = 'somebody@example.com'
+        c.update(user.id, {'email': email})
+
+        user = c.read(1)
+        compare(user.email, email)
+
+        user = c.create({'name': u'Anybody', 'email': 'anybody@example.com'})
+        assert_is_not_none(user)
+        compare(c.read(user.id), user)
+        compare(user.name, 'Anybody')
+
+        c.delete(user.id)
+        assert_is_none(c.read(user.id))

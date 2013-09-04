@@ -112,6 +112,11 @@ class IsType(ValueValidator):
 OfType = IsType
 
 
+class Unicode(IsType):
+    def __init__(self):
+        self.typ = unicode
+
+
 class Int(ValueValidator):
 
     def __init__(self, min=None, max=None):
@@ -164,3 +169,16 @@ class Email(Regex):
         regex = re.compile(r"^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-z\-0-9]+\.)+[a-z]{2,}))$", re.IGNORECASE)
 
         super(self.__class__, self).__init__(regex)
+
+
+class OneOf(ValueValidator):
+    message = 'Field {field} must be one of {values}'
+
+    def __init__(self, values):
+        self.values = values
+
+    def validate(self, model_instance, field_name, value):
+        if value not in self.values:
+            return [self.message.format(field=field_name, values=self.values)]
+        return []
+

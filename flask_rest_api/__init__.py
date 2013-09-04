@@ -76,34 +76,30 @@ class Authentication(ApiMixin):
     pass
 
 
-class ModelView(MethodView):
-    id_type = 'int'
+class BaseApiView(MethodView):
 
-    @classmethod
-    def endpoint(cls):
-        return '/' + dasherize(cls.model_name()) + '/'
+    def __init__(self, model, id_type='int'):
+        self.model = model
+        self.model_name = underscore(pluralize(model.__name__))
+        self.endpoint = '/' + dasherize(self.model_name) + '/'
+        self.id_type = id_type
 
-    @classmethod
-    def model_name(cls):
-        return underscore(pluralize(cls.model.__name__))
-
-    @classmethod
-    def register_on(cls, api):
-        view = cls.as_view(cls.model_name())
-        endpoint_prefix = cls.endpoint()
+    def register_on(self, api):
+        view_func = self.dispatch_request
+        #setattr(view_func, '__name__', self.model_name)
+        endpoint_prefix = self.endpoint
 
         api.add_url_rule(endpoint_prefix, defaults={'id': None},
-                          view_func=view, methods=['GET'])
+                          view_func=view_func, methods=['GET'])
 
         api.add_url_rule(endpoint_prefix,
-                          view_func=view, methods=['POST'])
+                          view_func=view_func, methods=['POST'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % cls.id_type,
-                          view_func=view, methods=['GET', 'PUT', 'DELETE'])
+        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type,
+                          view_func=view_func, methods=['GET', 'PUT', 'DELETE'])
 
-        api.add_url_rule(endpoint_prefix, view_func=view)
+        api.add_url_rule(endpoint_prefix, view_func=view_func)
 
-    
     def dispatch_request(self, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)
         # if the request method is HEAD and we don't have a handler for it
@@ -115,10 +111,26 @@ class ModelView(MethodView):
         return g.data_encoder.encode(data)
 
 
-class ImplicitModelView(ModelView):
+class ModelView(BaseApiView):
+
+    def __init__(self, controller, id_type='int'):
+        super(ModelView, self).__init__(controller.model, id_type)
+        self.controller = controller
 
     def get(self, id=None):
         if id is None:
-            return [m.to_dict() for m in self.store._all()]
+            return self.controller.index()
         else:
-            return self.store._get(id).to_dict()
+            return self.controller.read(id)
+
+    def post(self):
+        return self.controller.create({})
+
+    def put(self, id=None):
+        return self.controller.update(id, {})
+
+    def patch(self, id=None):
+        return self.controller.update(id, {})
+
+    def delete(self, id=None):
+        return self.controller.delete(id)

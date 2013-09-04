@@ -13,6 +13,7 @@ setup(
         'fixture',
         'inflection',
         'nose',
-        'sqlalchemy'
+        'sqlalchemy',
+        'testfixtures',
     ]
 )

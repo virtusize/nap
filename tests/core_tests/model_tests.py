@@ -101,6 +101,7 @@ def test_to_dict():
 class Thing(Model):
     pass
 
+
 def test_simple_model_store_get():
     class Things(Storage):
         thing_one = Thing(id=1, name='Thing One')
@@ -144,3 +145,15 @@ def test_create_implicit_store():
     assert_equal(Stores.virtusize.name, 'virtusize')
 
    
+def test_storage_pluck():
+    class Store(Model):
+        pass
+
+    class Stores(Storage):
+        virtusize = Store(id=1, name='virtusize')
+        asos = Store(id=2, name='asos')
+        wesc = Store(id=3, name='wesc')
+
+    compare(Stores._pluck(), [1, 2, 3])
+    compare(Stores._pluck('name'), ['virtusize', 'asos', 'wesc'])
+

@@ -9,6 +9,7 @@ regular unittest.TestCases
 """
 
 from nose import tools as nt
+import testfixtures
 
 from core.database import *
 
@@ -35,6 +36,7 @@ assert_list_equal = nt.assert_list_equal
 assert_tuple_equal = nt.assert_tuple_equal
 assert_set_equal = nt.assert_set_equal
 assert_dict_equal = nt.assert_dict_equal
+compare = testfixtures.compare
 raises = nt.raises
 
 

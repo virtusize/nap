@@ -31,3 +31,7 @@ class Storage:
             if hasattr(model, key) and getattr(model, key) == value:
                 return model
         return None
+
+    @classmethod
+    def _pluck(cls, key='id'):
+        return [getattr(item, key, None) for item in cls._all()]

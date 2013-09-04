@@ -5,54 +5,100 @@ import sys
 from fixture import DataSet
 from fixture import SQLAlchemyFixture, TrimmedNameStyle
 
+from flask import Flask
+
+from core.model import Model, Storage
+from core.validation.validators import *
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import ForeignKey
-from sqlalchemy import Integer, String
+from sqlalchemy.types import Integer, String, Unicode, DateTime, Boolean
 
 from core.database import SAModel, Field
 from core.validation.validators import NotNone, Email
 from tests.helpers import engine
 
 
-class Stores(DataSet):
-    class virtusize:
-        id = 1
-        name = 'Virtusize Demo Store'
-        short_name = 'virtusize'
-        api_key = 'asdf1234'
+class ProductType(Model):
+
+    _validate_with = [
+        FieldValidator('id', NotEmpty, Int),
+        FieldValidator('name', NotEmpty, Unicode)
+    ]
+
+
+class ProductTypes(Storage):
+    dress = ProductType(id=1, name='dress')
+    shirt = ProductType(id=2, name='shirt')
+    pants = ProductType(id=3, name='pants')
 
 
 class Users(DataSet):
 
     class john:
         id = 1
-        name = 'John'
+        name = u'John'
         email = 'john@virtusize.com'
-        store = Stores.virtusize
 
     class jane:
         id = 2
-        name = 'jane'
+        name = u'jane'
         email = 'jane@virtusize.com'
+
+
+class Stores(DataSet):
+
+    class virtusize:
+        id = 1
+        name = u'Virtusize Demo Store'
+        owner = Users.john
+
+    class asos:
+        id = 2
+        name = u'Asos'
+        owner = Users.john
+
+    class wesc:
+        id = 3
+        name = u'WeSC'
+        owner = Users.jane
+
+
+class Products(DataSet):
+
+    class dress:
+        id = 1
+        name = u'Black dress'
         store = Stores.virtusize
-
-
-class Store(SAModel):
-
-    id = Field(Integer, primary_key=True)
-    name = Field(String)
-    short_name = Field(String)
-    api_key = Field(String)
+        product_type_id = ProductTypes.dress.id
 
 
 class User(SAModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(String, validate_with=[NotNone()])
-    email = Field(String, validate_with=[NotNone(), Email])
-    store_id = Field(Integer, ForeignKey('stores.id'), nullable=True)
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty()])
+    email = Field(String(255), validate_constraints=True, validate_with=[NotEmpty, Email])
 
-    store = relationship(Store, backref=backref('users'))
+
+class Store(SAModel):
+
+    id = Field(Integer, primary_key=True)
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty])
+    owner_id = Field(Integer, ForeignKey('users.id'), nullable=False)
+
+    owner = relationship(User, backref='stores')
+
+
+class Product(SAModel):
+    id = Field(Integer, primary_key=True)
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty])
+    store_id = Field(Integer, ForeignKey('stores.id'), nullable=False)
+    product_type_id = Field(Integer, validate_constraints=True, validate_with=[OneOf(ProductTypes._pluck())])
+
+    store = relationship(Store, backref='products')
+
+    @property
+    def product_type(self):
+        return ProductTypes._get(self.product_type_id)
 
 
 current_module = sys.modules[__name__]

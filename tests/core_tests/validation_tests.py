@@ -5,7 +5,7 @@ import re
 from core.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import IsNone, MinLength, MaxLength, IsType, Int, NotEmpty, Regex, PlainText, Email
+from core.validation.validators import *
 
 
 def assert_value_validator(validator_instance, value, expected):
@@ -126,6 +126,22 @@ def test_value_validators():
         #(Email(), "email@domain.web", False), # Should not be allowed (invalid top level domain), but currently is
         (Email(), "email@111.222.333.44444", False),
         (Email(), "email@domain..com", False),
+
+
+        (OneOf([1, '2', 3.0]), 1, True),
+        (OneOf([1, '2', 3.0]), '2', True),
+        (OneOf([1, '2', 3.0]), 3.0, True),
+        (OneOf([1, '2', 3.0]), '1', False),
+        (OneOf([1, '2', 3.0]), 2, False),
+        (OneOf({1, '2', 3.0}), 1, True),
+        (OneOf({1, '2', 3.0}), '2', True),
+        (OneOf({1, '2', 3.0}), 3.0, True),
+        (OneOf({1, '2', 3.0}), '1', False),
+        (OneOf({1, '2', 3.0}), 2, False),
+
+        (Unicode(), 'not unicöde', False),
+        (Unicode(), u'not unicöde', True),
+        (Unicode(), unicode('not unicode'), True),
 
     ]
 

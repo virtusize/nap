@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from core.model import Model, serialization
+from core.model.controller import BaseController
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
 from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
 from core.model.serialization import exclude
@@ -96,5 +97,45 @@ class SAModel(ValidationMixin):
     def to_dict(self, strategy=exclude(['_sa_instance_state'])):
         return strategy(self)
 
+    def update_attributes(self, attributes):
+        for key, value in attributes.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
 
 SAModel = declarative_base(cls=SAModel)
+
+
+class SAModelController(BaseController):
+
+    def __init__(self, model, session_factory):
+        self.model = model
+        self.session_factory = session_factory
+
+    @property
+    def db_session(self):
+        return self.session_factory()
+
+    def read(self, id, context=None):
+        return self._get_model(id)
+
+    def create(self, attributes, context=None):
+        model = self.model(**attributes)
+        self.db_session.add(model)
+        self.db_session.commit()
+        return model
+
+    def update(self, id, attributes, context=None):
+        model = self._get_model(id)
+        model.update_attributes(attributes)
+        self.db_session.commit()
+        return model
+
+    def delete(self, id, context=None):
+        self.db_session.delete(self._get_model(id))
+        self.db_session.commit()
+        return id
+
+    def _get_model(self, id):
+        return self.db_session.query(self.model).get(id)
+
