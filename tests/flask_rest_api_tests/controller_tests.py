@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import flask
+import json
 
 from tests.helpers import *
 from core.model import Model, Storage
-from flask_rest_api import Api, ModelView, ImplicitModelView
+from flask_rest_api import Api, ModelView, ImplicitModelView, Debug, JsonEncoder
 
 
 class Store(Model):
     pass
 
 api = Api('api', '/api', 1)
+
+Debug(api,print_request=False, print_response=False)
+
+JsonEncoder(api)
+#JsonDecoder(api)
+#MethodOverride(api)
+#Authentication(api)
 
 
 class Stores(Storage):
@@ -19,12 +27,12 @@ class Stores(Storage):
     store3 = Store(id=3, name='store3')
 
 
-class StoreController(ImplicitModelView):
+class StoreView(ImplicitModelView):
     model = Store
     store = Stores
 
 
-StoreController.register_on(api)
+StoreView.register_on(api)
 
 app = flask.Flask(__name__)
 
@@ -59,6 +67,9 @@ def test_implicit_model_controller_get():
     c = app.test_client()
 
     assert_is_not_none(c.get('/api/v1/stores/').data)
+    assert_equal(len(json.loads(c.get('/api/v1/stores/').data)), 3)
 
     assert_is_not_none(c.get('/api/v1/stores/1').data)
+    assert_equal(json.loads(c.get('/api/v1/stores/1').data)['name'], 'store1')
+    assert_equal(json.loads(c.get('/api/v1/stores/3').data)['name'], 'store3')
 

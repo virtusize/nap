@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class BaseController:
+class BaseController(object):
 
     def index(self, context=None):
         raise NotImplementedError
