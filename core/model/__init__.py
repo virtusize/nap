@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from core.model.serialization import dict_or_state
 from core.validation import ValidationMetaClass, ValidationMixin
 
 
-class Model(ValidationMixin):
+class BaseModel(ValidationMixin):
+
+    def to_dict(self):
+        if hasattr(self, '__getstate__'):
+            return self.__getstate__()
+
+        return self.__dict__
+
+
+class Model(BaseModel):
 
     __metaclass__ = ValidationMetaClass
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
-
-    def to_dict(self, strategy=dict_or_state):
-        return strategy(self)
 
 
 class Storage:

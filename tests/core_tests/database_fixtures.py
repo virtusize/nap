@@ -83,7 +83,7 @@ class Store(SAModel):
 
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty])
-    owner_id = Field(Integer, ForeignKey('users.id'), nullable=False)
+    owner_id = Field(Integer, ForeignKey('users.id'), nullable=False, validate_constraints=True)
 
     owner = relationship(User, backref='stores')
 

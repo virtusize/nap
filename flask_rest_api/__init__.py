@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import pprint
+from itertools import imap
+from functools import wraps
+from collections import Iterable
 
 from inflection import underscore, dasherize, pluralize
 from flask import Blueprint, request, g
 from flask.json import JSONEncoder
 from flask.views import MethodView
+
+from core.model import BaseModel
 
 
 class Api(Blueprint):
@@ -38,7 +43,7 @@ class Debug(ApiMixin):
     def before(self):
         request_info = {}
 
-        request_fields = ['values', 'cookies', 'headers', 'path', 'full_path',
+        request_fields = ['method','content_type', 'data', 'values', 'cookies', 'headers', 'path', 'full_path',
                           'script_root', 'url', 'base_url', 'url_root', 'host_url', 'host',  'remote_addr']
 
         for field in request_fields:
@@ -63,9 +68,9 @@ class JsonEncoder(ApiMixin):
         g.data_encoder = self.encoder
 
 
-
 class JsonDecoder(ApiMixin):
-    pass
+    def before(self):
+        g.incoming_data = request.get_json()
 
 
 class MethodOverride(ApiMixin):
@@ -84,53 +89,110 @@ class BaseApiView(MethodView):
         self.endpoint = '/' + dasherize(self.model_name) + '/'
         self.id_type = id_type
 
+    def index(self):
+        raise NotImplementedError
+
+    def get(self, id):
+        raise NotImplementedError
+
+    def post(self):
+        raise NotImplementedError
+
+    def put(self, id):
+        raise NotImplementedError
+
+    def patch(self, id):
+        raise NotImplementedError
+
+    def delete(self, id):
+        raise NotImplementedError
+
     def register_on(self, api):
-        view_func = self.dispatch_request
-        #setattr(view_func, '__name__', self.model_name)
         endpoint_prefix = self.endpoint
 
-        api.add_url_rule(endpoint_prefix, defaults={'id': None},
-                          view_func=view_func, methods=['GET'])
+        api.add_url_rule(endpoint_prefix, endpoint=self.model_name + '_index',
+                         view_func=self._wrap(self.index), methods=['GET'])
 
-        api.add_url_rule(endpoint_prefix,
-                          view_func=view_func, methods=['POST'])
+        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_get',
+                         view_func=self._wrap(self.get), methods=['GET'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type,
-                          view_func=view_func, methods=['GET', 'PUT', 'DELETE'])
+        api.add_url_rule(endpoint_prefix, endpoint=self.model_name + '_post',
+                         view_func=self._wrap(self.post), methods=['POST'])
 
-        api.add_url_rule(endpoint_prefix, view_func=view_func)
+        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_put',
+                         view_func=self._wrap(self.put), methods=['PUT'])
 
-    def dispatch_request(self, *args, **kwargs):
-        meth = getattr(self, request.method.lower(), None)
-        # if the request method is HEAD and we don't have a handler for it
-        # retry with GET
-        if meth is None and request.method == 'HEAD':
-            meth = getattr(self, 'get', None)
-        assert meth is not None, 'Unimplemented method %r' % request.method
-        data = meth(*args, **kwargs)
-        return g.data_encoder.encode(data)
+        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_patch',
+                         view_func=self._wrap(self.patch), methods=['PATCH'])
+
+        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_delete',
+                         view_func=self._wrap(self.delete), methods=['DELETE'])
+
+    def _wrap(self, f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Do before request
+            response = f(*args, **kwargs)
+            # Do after request
+            if g.get('data_encoder', None):
+                response = g.data_encoder.encode(response)
+
+            return response
+
+        return wrapper
+
+
+class Filter(object):
+
+    def fiter(self, dct):
+        raise NotImplementedError
+
+
+class SAModelFilter(Filter):
+
+    def filter(self, dct):
+        del dct['_sa_instance_state']
+        return dct
 
 
 class ModelView(BaseApiView):
 
-    def __init__(self, controller, id_type='int'):
+    def __init__(self, controller, filter_chain=[], id_type='int'):
         super(ModelView, self).__init__(controller.model, id_type)
         self.controller = controller
+        self.filter_chain = filter_chain
 
-    def get(self, id=None):
-        if id is None:
-            return self.controller.index()
+    def _apply_filters(self, subject):
+
+        def apply_filter_chain(m):
+            m = m.to_dict()
+
+            for filter in self.filter_chain:
+                m = filter.filter(m)
+            return m
+
+        print str(subject)
+        if isinstance(subject, BaseModel):
+            return apply_filter_chain(subject)
+        elif isinstance(subject, Iterable):
+            return list(imap(apply_filter_chain, subject))
         else:
-            return self.controller.read(id)
+            raise TypeError('Filters expect the objects to be of type BaseModel')
+
+    def index(self):
+        return self._apply_filters(self.controller.index())
+
+    def get(self, id):
+        return self._apply_filters(self.controller.read(id))
 
     def post(self):
-        return self.controller.create({})
+        return self._apply_filters(self.controller.create(g.incoming_data))
 
     def put(self, id=None):
-        return self.controller.update(id, {})
+        return self._apply_filters(self.controller.update(id, g.incoming_data))
 
     def patch(self, id=None):
-        return self.controller.update(id, {})
+        return self._apply_filters(self.controller.update(id, g.incoming_data))
 
     def delete(self, id=None):
-        return self.controller.delete(id)
+        return self._apply_filters(self.controller.delete(id))

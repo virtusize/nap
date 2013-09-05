@@ -50,7 +50,7 @@ def fixtures(*args, **kwargs):
     return FixturesContext(*args, **kwargs)
 
 
-def db(clean=False):
+def db(clean=True):
     return DbContext(clean=clean)
 
 

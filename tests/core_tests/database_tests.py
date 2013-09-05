@@ -61,8 +61,9 @@ def test_validate_before_insert():
 
 def test_to_dict():
     john = User(name='John Doe', email='john@doe.com')
-    assert_equal(john.to_dict(), {'name': 'John Doe', 'email': 'john@doe.com'})
-    assert_not_equal(john.to_dict(), john.__dict__)
+    dct = john.to_dict()
+    del dct['_sa_instance_state']
+    assert_equal(dct, {'name': 'John Doe', 'email': 'john@doe.com'})
 
 
 def test_tablename():
