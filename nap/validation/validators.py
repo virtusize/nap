@@ -38,7 +38,7 @@ class FieldValidator(ModelValidator):
         return _value_errors
 
 
-class IsNone(ValueValidator):
+class EnsureNone(ValueValidator):
 
     def validate(self, model_instance, field_name, value):
         if not value is None:
@@ -46,7 +46,7 @@ class IsNone(ValueValidator):
         return []
 
 
-class NotNone(ValueValidator):
+class EnsureNotNone(ValueValidator):
 
     def validate(self, model_instance, field_name, value):
         if value is None:
@@ -54,7 +54,7 @@ class NotNone(ValueValidator):
         return []
 
 
-class NotEmpty(ValueValidator):
+class EnsureNotEmpty(ValueValidator):
 
     def validate(self, model_instance, field_name, value):
         if value != 0 and not value:
@@ -62,10 +62,10 @@ class NotEmpty(ValueValidator):
 
         return []
 
-Required = NotEmpty
+EnsurePresent = EnsureNotEmpty
 
 
-class MaxLength(ValueValidator):
+class EnsureMaxLength(ValueValidator):
 
     def __init__(self, max_length):
         self.max_length = max_length
@@ -82,7 +82,7 @@ class MaxLength(ValueValidator):
         return []
 
 
-class MinLength(ValueValidator):
+class EnsureMinLength(ValueValidator):
 
     def __init__(self, min_length):
         self.min_length = min_length
@@ -99,7 +99,7 @@ class MinLength(ValueValidator):
         return []
 
 
-class IsType(ValueValidator):
+class EnsureType(ValueValidator):
 
     def __init__(self, typ):
         self.typ = typ
@@ -109,15 +109,13 @@ class IsType(ValueValidator):
             return ['Field {field} is not of type {type}'.format(field=field_name, type=self.typ)]
         return []
 
-OfType = IsType
 
-
-class Unicode(IsType):
+class EnsureUnicode(EnsureType):
     def __init__(self):
         self.typ = unicode
 
 
-class Int(ValueValidator):
+class EnsureInt(ValueValidator):
 
     def __init__(self, min=None, max=None):
         self.min = min
@@ -137,8 +135,8 @@ class Int(ValueValidator):
         return errors
 
 
-class Regex(ValueValidator):
-    
+class EnsureRegex(ValueValidator):
+
     message = 'Field {field} does not match'
 
     def __init__(self, regex):
@@ -150,7 +148,7 @@ class Regex(ValueValidator):
         return []
 
 
-class PlainText(Regex):
+class EnsurePlainText(EnsureRegex):
 
     message = 'Field {field} can only contain letters, numbers, underscores and dashes'
 
@@ -158,20 +156,20 @@ class PlainText(Regex):
         super(self.__class__, self).__init__(r"^[a-zA-Z_\-0-9]*$")
 
 
-class Email(Regex):
+class EnsureEmail(EnsureRegex):
 
     message = 'Field {field} is not a valid email'
 
     def __init__(self):
         # Pattern from http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
         # See the pattern visually at http://www.regexper.com
-        
+
         regex = re.compile(r"^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-z\-0-9]+\.)+[a-z]{2,}))$", re.IGNORECASE)
 
         super(self.__class__, self).__init__(regex)
 
 
-class OneOf(ValueValidator):
+class EnsureOneOf(ValueValidator):
     message = 'Field {field} must be one of {values}'
 
     def __init__(self, values):

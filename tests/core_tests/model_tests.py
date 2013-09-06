@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from unittest import skip
 from nap.model import Model, Storage, ModelSerializer
-from nap.validation.validators import MinLength, Email, Int
+from nap.validation.validators import EnsureMinLength, EnsureEmail, FieldValidator, EnsureNotNone, EnsureMaxLength
 from tests.helpers import *
 
 
@@ -21,9 +21,9 @@ def test_model_with_validation():
     class VModel(Model):
 
         _validate_with = [
-            FieldValidator('id', NotNone),
-            FieldValidator('name', NotNone, MinLength(5)),
-            FieldValidator('tweet', NotNone, MaxLength(140)),
+            FieldValidator('id', EnsureNotNone),
+            FieldValidator('name', EnsureNotNone, EnsureMinLength(5)),
+            FieldValidator('tweet', EnsureNotNone, EnsureMaxLength(140)),
         ]
 
     valid_instance = VModel(id=1, name='Some Name', tweet='blah ' * 20)
@@ -38,7 +38,7 @@ def test_consecutive_validations():
     class VModel(Model):
 
         _validate_with = [
-            FieldValidator('id', NotNone),
+            FieldValidator('id', EnsureNotNone),
         ]
 
     valid_instance = VModel(id=1)
@@ -56,7 +56,7 @@ def test_model_with_notnone_and_email():
     class VModel(Model):
 
         _validate_with = [
-            FieldValidator('email', NotNone, Email)
+            FieldValidator('email', EnsureNotNone, EnsureEmail)
         ]
 
     valid_instance = VModel(email='hannes@virtusize.com')
@@ -75,13 +75,13 @@ def test_inheritance_with_validation():
     class V1Model(Model):
 
         _validate_with = [
-            FieldValidator('name', NotNone, MinLength(5)),
+            FieldValidator('name', EnsureNotNone, EnsureMinLength(5)),
         ]
 
     class V2Model(V1Model):
 
         _validate_with = [
-            FieldValidator('tweet', NotNone, MaxLength(140)),
+            FieldValidator('tweet', EnsureNotNone, EnsureMaxLength(140)),
         ]
 
     valid_instance = V2Model(id=1, name='Some Name', tweet='blah ' * 20)

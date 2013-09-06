@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from nap.validation import ValidationResult
 import sqlalchemy as sa
-from tests.helpers import *
-from nap.database import SAModelSerializer
+
 from tests.core_tests.database_fixtures import Users, User, Store, fixture_loader
+
+from nap.validation import ValidationResult
+from sa_nap import SAModelSerializer, SQLConstraintsValidator, Field, SAModelController
+from tests.helpers import *
 
 
 def test_fixtures_query():

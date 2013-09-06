@@ -20,7 +20,7 @@ class ModelValidator(object):
 class ValueValidator(object):
     """
     ValueValidator validates just a single value from a model.
-    Example subclasses are NotNone, MaxLength, ValidEmail, etc...
+    Example subclasses are EnsureNotNone, EnsureMaxLength, ValidEmail, etc...
     """
     def validate(self, model_instance, field_name, value):
         raise NotImplementedError

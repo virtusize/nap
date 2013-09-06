@@ -8,10 +8,14 @@ If the tests do not need a full test environment incl. the database they can be
 regular unittest.TestCases
 """
 
-from nose import tools as nt
 import testfixtures
+from nose import tools as nt
 
-from nap.database import *
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from sa_nap import SAModel
+
 
 assert_equal = nt.assert_equal
 assert_equals = nt.assert_equals

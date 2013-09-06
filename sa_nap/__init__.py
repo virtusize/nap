@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from nap.model import BaseModel, BaseSerializer
 from nap.model.controller import BaseController
 from nap.validation import ValidationContext, ValidationMixin, ValueValidator
-from nap.validation.validators import FieldValidator, MaxLength, NotNone, IsType
+from nap.validation.validators import FieldValidator, EnsureMaxLength, EnsureNotNone, EnsureType
 
 
 class SQLConstraintsValidator(ValueValidator):
@@ -19,13 +19,13 @@ class SQLConstraintsValidator(ValueValidator):
             return
 
         if isinstance(field.type, types.String) and field.type.length:
-            self.validators.append(MaxLength(field.type.length))
+            self.validators.append(EnsureMaxLength(field.type.length))
 
         if not field.nullable:
-            self.validators.append(NotNone())
+            self.validators.append(EnsureNotNone())
 
         if isinstance(field.type, (types.Unicode, types.UnicodeText)):
-            self.validators.append(IsType(unicode))
+            self.validators.append(EnsureType(unicode))
 
     def validate(self, model_instance, field_name, value):
         errors = []
@@ -73,7 +73,7 @@ class Field(Column):
     This is a extension for Column type that allows us to pass in a list of validator classes
     to validate against.
     Example:
-        name = Field(String, validate_constraints=True, validate_with=[NotNone])
+        name = Field(String, validate_constraints=True, validate_with=[EnsureNotNone])
     """
     def __init__(self, *args, **kwargs):
 

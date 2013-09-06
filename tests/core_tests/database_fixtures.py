@@ -4,25 +4,21 @@ import sys
 
 from fixture import DataSet
 from fixture import SQLAlchemyFixture, TrimmedNameStyle
-
-from flask import Flask
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.types import Integer, String, Unicode
 
 from nap.model import Model, Storage
 from nap.validation.validators import *
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.schema import ForeignKey
-from sqlalchemy.types import Integer, String, Unicode, DateTime, Boolean
-
-from nap.database import SAModel, Field
-from nap.validation.validators import NotNone, Email
+from sa_nap import SAModel, Field
 from tests.helpers import engine
 
 
 class ProductType(Model):
 
     _validate_with = [
-        FieldValidator('id', NotEmpty, Int),
-        FieldValidator('name', NotEmpty, Unicode)
+        FieldValidator('id', EnsureNotEmpty, EnsureInt),
+        FieldValidator('name', EnsureNotEmpty, Unicode)
     ]
 
 
@@ -75,14 +71,14 @@ class Products(DataSet):
 class User(SAModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty()])
-    email = Field(String(255), validate_constraints=True, validate_with=[NotEmpty, Email])
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
+    email = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty, EnsureEmail])
 
 
 class Store(SAModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty])
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty])
     owner_id = Field(Integer, ForeignKey('users.id'), nullable=False, validate_constraints=True)
 
     owner = relationship(User, backref='stores')
@@ -90,9 +86,9 @@ class Store(SAModel):
 
 class Product(SAModel):
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[MinLength(3), NotEmpty])
+    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty])
     store_id = Field(Integer, ForeignKey('stores.id'), nullable=False)
-    product_type_id = Field(Integer, validate_constraints=True, validate_with=[OneOf(ProductTypes._pluck())])
+    product_type_id = Field(Integer, validate_constraints=True, validate_with=[EnsureOneOf(ProductTypes._pluck())])
 
     store = relationship(Store, backref='products')
 
