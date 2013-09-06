@@ -2,10 +2,10 @@
 
 import re
 
-from core.validation import ValidationResult
+from nap.validation import ValidationResult
 from tests.helpers import *
 
-from core.validation.validators import *
+from nap.validation.validators import *
 
 
 def assert_value_validator(validator_instance, value, expected):

@@ -11,7 +11,7 @@ regular unittest.TestCases
 from nose import tools as nt
 import testfixtures
 
-from core.database import *
+from nap.database import *
 
 assert_equal = nt.assert_equal
 assert_equals = nt.assert_equals

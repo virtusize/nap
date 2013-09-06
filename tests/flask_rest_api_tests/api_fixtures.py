@@ -2,12 +2,12 @@
 
 from flask import Flask
 from flask_rest_api import Api, Debug, JsonEncoder, JsonDecoder, ModelView
-from core.database import SAModelController, SAModelSerializer
+from nap.database import SAModelController, SAModelSerializer
 from tests.core_tests.database_fixtures import ProductType, ProductTypes, Store
 from tests.helpers import db_session
-from core.model import ModelSerializer
-from core.model.controller import ModelController
-from core.validation.validators import *
+from nap.model import ModelSerializer
+from nap.model.controller import ModelController
+from nap.validation.validators import *
 
 app = Flask(__name__)
 

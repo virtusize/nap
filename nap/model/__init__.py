@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from core.validation import ValidationMetaClass, ValidationMixin
+from nap.validation import ValidationMetaClass, ValidationMixin
 
 
 class BaseModel(ValidationMixin):

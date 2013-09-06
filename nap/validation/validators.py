@@ -2,7 +2,7 @@
 
 import re
 
-from core.validation import ModelValidator, ValueValidator
+from nap.validation import ModelValidator, ValueValidator
 
 
 class FieldValidator(ModelValidator):

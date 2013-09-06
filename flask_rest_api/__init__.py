@@ -10,7 +10,7 @@ from flask import Blueprint, request, g
 from flask.json import JSONEncoder
 from flask.views import MethodView
 
-from core.model import BaseModel
+from nap.model import BaseModel
 
 
 class Api(Blueprint):
@@ -81,7 +81,7 @@ class Authentication(ApiMixin):
     pass
 
 
-class BaseApiView(MethodView):
+class BaseApiView(object):
 
     def __init__(self, endpoint, id_type='int'):
         self.endpoint = endpoint

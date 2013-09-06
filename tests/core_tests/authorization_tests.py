@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from core.authorization import Guard, Identity, Role, Permission, subject_alias
-from core.model import Model
+from nap.authorization import Guard, Identity, Role, Permission, subject_alias
+from nap.model import Model
 from tests.helpers import *
 
 

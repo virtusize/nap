@@ -5,10 +5,10 @@ from inflection import underscore, pluralize
 from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
-from core.model import BaseModel, BaseSerializer
-from core.model.controller import BaseController
-from core.validation import ValidationContext, ValidationMixin, ValueValidator
-from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
+from nap.model import BaseModel, BaseSerializer
+from nap.model.controller import BaseController
+from nap.validation import ValidationContext, ValidationMixin, ValueValidator
+from nap.validation.validators import FieldValidator, MaxLength, NotNone, IsType
 
 
 class SQLConstraintsValidator(ValueValidator):

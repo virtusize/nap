@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import skip
-from core.model import Model, Storage, ModelSerializer
-from core.validation.validators import MinLength, Email, Int
+from nap.model import Model, Storage, ModelSerializer
+from nap.validation.validators import MinLength, Email, Int
 from tests.helpers import *
 
 

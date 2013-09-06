@@ -7,14 +7,14 @@ from fixture import SQLAlchemyFixture, TrimmedNameStyle
 
 from flask import Flask
 
-from core.model import Model, Storage
-from core.validation.validators import *
+from nap.model import Model, Storage
+from nap.validation.validators import *
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import Integer, String, Unicode, DateTime, Boolean
 
-from core.database import SAModel, Field
-from core.validation.validators import NotNone, Email
+from nap.database import SAModel, Field
+from nap.validation.validators import NotNone, Email
 from tests.helpers import engine
 
 

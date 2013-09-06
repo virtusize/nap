@@ -5,7 +5,7 @@ from flask.json import JSONEncoder
 from tests.helpers import *
 from tests.flask_rest_api_tests.helpers import *
 from tests.flask_rest_api_tests.api_fixtures import *
-from core.model import Model
+from nap.model import Model
 from flask_rest_api import ModelView, BaseApiView
 from tests.core_tests.database_fixtures import Stores, Users, fixture_loader
 

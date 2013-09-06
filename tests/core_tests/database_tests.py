@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from core.validation import ValidationResult
+from nap.validation import ValidationResult
 import sqlalchemy as sa
 from tests.helpers import *
-from core.database import SAModelSerializer
+from nap.database import SAModelSerializer
 from tests.core_tests.database_fixtures import Users, User, Store, fixture_loader
 
 
