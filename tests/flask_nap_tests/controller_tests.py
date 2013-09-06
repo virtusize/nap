@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-
-from flask.json import JSONEncoder
+from inflection import underscore, pluralize
+from flask.ext.nap.view import BaseApiView
 
 from tests.helpers import *
-from tests.flask_rest_api_tests.helpers import *
-from tests.flask_rest_api_tests.api_fixtures import *
-from nap.model import Model
-from flask_nap import ModelView, BaseApiView
-from tests.core_tests.database_fixtures import Stores, Users, fixture_loader
+from tests.flask_nap_tests.helpers import *
+from tests.flask_nap_tests.fixtures import *
+from tests.fixtures import Stores, Users, fixture_loader
 
 
 def _create_view(model_name):

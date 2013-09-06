@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask.json import JSONDecoder, JSONEncoder
-from api_fixtures import app
+from fixtures import app
 
 test_client = app.test_client()
 

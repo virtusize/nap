@@ -5,7 +5,7 @@ from sa_nap.controller import SAModelController
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.core_tests.database_fixtures import Users, User, Store, fixture_loader
+from tests.fixtures import Users, User, Store, fixture_loader
 
 from nap.validation import ValidationResult
 from tests.helpers import *
