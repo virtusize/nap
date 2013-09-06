@@ -3,7 +3,7 @@ from collections import Iterable
 from functools import wraps
 from itertools import imap
 from flask import g
-from inflection import dasherize, underscore, pluralize
+from inflection import dasherize, underscore, pluralize, camelize
 from nap.model import BaseModel
 
 
@@ -68,8 +68,35 @@ class BaseApiView(object):
 
 class Filter(object):
 
+    def __init__(self):
+        pass
+
     def fiter(self, dct):
         raise NotImplementedError
+
+
+class KeyFilter(Filter):
+
+    def __init__(self, key_filter):
+        self.key_filter = key_filter
+
+    def filter(self, dct):
+        return {self.key_filter(k): v for (k, v) in dct.items()}
+
+
+class CamelizeFilter(KeyFilter):
+
+    def __init__(self, uppercase_first_letter=False):
+        super(CamelizeFilter, self).__init__(lambda k: camelize(k, uppercase_first_letter))
+
+
+class ExcludeFilter(Filter):
+
+    def __init__(self, exclude=[]):
+        self.exclude = exclude
+
+    def filter(self, dct):
+        return {k: v for (k, v) in dct.items() if not k in self.exclude}
 
 
 class ModelView(BaseApiView):

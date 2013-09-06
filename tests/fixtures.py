@@ -35,11 +35,13 @@ class Users(DataSet):
         id = 1
         name = u'John'
         email = 'john@virtusize.com'
+        password = '123456'
 
     class jane:
         id = 2
         name = u'jane'
         email = 'jane@virtusize.com'
+        password = '123456'
 
 
 class Stores(DataSet):
@@ -74,6 +76,7 @@ class User(SAModel):
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
     email = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty, EnsureEmail])
+    password = Field(Unicode(255))
 
 
 class Store(SAModel):

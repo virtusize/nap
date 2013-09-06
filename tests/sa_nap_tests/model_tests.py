@@ -67,7 +67,7 @@ def test_to_dict():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         john = db_session.query(User).get(Users.john.id)
 
-        compare(SAModelSerializer().serialize(john), {'name': 'John', 'email': 'john@virtusize.com', 'id': 1})
+        compare(SAModelSerializer().serialize(john), {'name': 'John', 'email': 'john@virtusize.com', 'id': 1, 'password': '123456'})
 
 
 def test_tablename():
