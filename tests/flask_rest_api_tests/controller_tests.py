@@ -6,7 +6,7 @@ from tests.helpers import *
 from tests.flask_rest_api_tests.helpers import *
 from tests.flask_rest_api_tests.api_fixtures import *
 from nap.model import Model
-from flask_rest_api import ModelView, BaseApiView
+from flask_nap import ModelView, BaseApiView
 from tests.core_tests.database_fixtures import Stores, Users, fixture_loader
 
 

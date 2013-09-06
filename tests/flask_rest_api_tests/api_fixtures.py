@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
-from flask_rest_api import Api, Debug, JsonEncoder, JsonDecoder, ModelView
+from flask_nap import Api, Debug, JsonEncoder, JsonDecoder, ModelView
 from nap.database import SAModelController, SAModelSerializer
 from tests.core_tests.database_fixtures import ProductType, ProductTypes, Store
 from tests.helpers import db_session
