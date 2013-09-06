@@ -80,5 +80,3 @@ class ValidationMixin(object):
             return self.__class__._validation_context.validate(self, raise_on_error=raise_on_error)
 
         return ValidationResult([])
-
-

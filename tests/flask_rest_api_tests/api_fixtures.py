@@ -7,7 +7,7 @@ from sa_nap.model import SAModelSerializer
 from tests.core_tests.database_fixtures import ProductType, ProductTypes, Store
 from tests.helpers import db_session
 from nap.model import ModelSerializer
-from nap.model.controller import ModelController
+from nap.controller import ModelController
 
 
 app = Flask(__name__)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from unittest import skip
 from nap.model import Model, Storage, ModelSerializer
-from nap.validation.validators import EnsureMinLength, EnsureEmail, FieldValidator, EnsureNotNone, EnsureMaxLength
+from nap.validators import EnsureMinLength, EnsureEmail, FieldValidator, EnsureNotNone, EnsureMaxLength
 from tests.helpers import *
 
 

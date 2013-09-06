@@ -5,7 +5,7 @@ import re
 from nap.validation import ValidationResult
 from tests.helpers import *
 
-from nap.validation.validators import *
+from nap.validators import *
 
 
 def assert_value_validator(validator_instance, value, expected):

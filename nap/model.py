@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from nap.validation import ValidationMetaClass, ValidationMixin
 
 
@@ -13,18 +12,6 @@ class Model(BaseModel):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
-
-
-class BaseSerializer(object):
-
-    def serialize(self, subject):
-        raise NotImplementedError
-
-
-class ModelSerializer(BaseSerializer):
-
-    def serialize(self, subject):
-        return subject.__dict__
 
 
 class Storage:
@@ -47,3 +34,15 @@ class Storage:
     @classmethod
     def _pluck(cls, key='id'):
         return [getattr(item, key, None) for item in cls._all()]
+
+
+class BaseSerializer(object):
+
+    def serialize(self, subject):
+        raise NotImplementedError
+
+
+class ModelSerializer(BaseSerializer):
+
+    def serialize(self, subject):
+        return subject.__dict__

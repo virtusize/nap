@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nap.model.controller import BaseController
+from nap.controller import BaseController
 
 
 class SAModelController(BaseController):

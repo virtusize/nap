@@ -9,7 +9,7 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import Integer, String, Unicode
 
 from nap.model import Model, Storage
-from nap.validation.validators import *
+from nap.validators import *
 from sa_nap import SAModel
 from sa_nap.model import Field
 from tests.helpers import engine

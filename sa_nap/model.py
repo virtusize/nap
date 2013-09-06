@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import mapper
 from nap.model import BaseModel, BaseSerializer
 from nap.validation import ValidationContext, ValidationMixin
-from nap.validation.validators import FieldValidator
+from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
 
 

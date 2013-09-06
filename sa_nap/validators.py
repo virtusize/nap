@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import types
 from nap.validation import ValueValidator
-from nap.validation.validators import EnsureMaxLength, EnsureNotNone, EnsureType
+from nap.validators import EnsureMaxLength, EnsureNotNone, EnsureType
 
 
 class SQLConstraintsValidator(ValueValidator):
