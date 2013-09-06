@@ -3,6 +3,7 @@
 from core.validation import ValidationResult
 import sqlalchemy as sa
 from tests.helpers import *
+from core.database import SAModelSerializer
 from tests.core_tests.database_fixtures import Users, User, Store, fixture_loader
 
 
@@ -60,10 +61,10 @@ def test_validate_before_insert():
 
 
 def test_to_dict():
-    john = User(name='John Doe', email='john@doe.com')
-    dct = john.to_dict()
-    del dct['_sa_instance_state']
-    assert_equal(dct, {'name': 'John Doe', 'email': 'john@doe.com'})
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        john = db_session.query(User).get(Users.john.id)
+
+        compare(SAModelSerializer().serialize(john), {'name': 'John', 'email': 'john@virtusize.com', 'id': 1})
 
 
 def test_tablename():

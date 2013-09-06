@@ -5,7 +5,7 @@ from inflection import underscore, pluralize
 from sqlalchemy import create_engine, event, types, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
-from core.model import BaseModel
+from core.model import BaseModel, BaseSerializer
 from core.model.controller import BaseController
 from core.validation import ValidationContext, ValidationMixin, ValueValidator
 from core.validation.validators import FieldValidator, MaxLength, NotNone, IsType
@@ -102,6 +102,12 @@ class SAModel(BaseModel):
 SAModel = declarative_base(cls=SAModel)
 
 
+class SAModelSerializer(BaseSerializer):
+
+    def serialize(self, subject):
+        return {c.name: getattr(subject, c.name) for c in subject.__table__.columns}
+
+
 class SAModelController(BaseController):
 
     def __init__(self, model, session_factory):
@@ -131,9 +137,10 @@ class SAModelController(BaseController):
         return model
 
     def delete(self, id, context=None):
-        self.db_session.delete(self._get_model(id))
+        model = self._get_model(id)
+        self.db_session.delete(model)
         self.db_session.commit()
-        return id
+        return model
 
     def _get_model(self, id):
         return self.db_session.query(self.model).get(id)

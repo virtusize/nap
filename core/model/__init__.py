@@ -4,12 +4,7 @@ from core.validation import ValidationMetaClass, ValidationMixin
 
 
 class BaseModel(ValidationMixin):
-
-    def to_dict(self):
-        if hasattr(self, '__getstate__'):
-            return self.__getstate__()
-
-        return self.__dict__
+    pass
 
 
 class Model(BaseModel):
@@ -18,6 +13,18 @@ class Model(BaseModel):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
+
+
+class BaseSerializer(object):
+
+    def serialize(self, subject):
+        raise NotImplementedError
+
+
+class ModelSerializer(BaseSerializer):
+
+    def serialize(self, subject):
+        return subject.__dict__
 
 
 class Storage:

@@ -83,10 +83,9 @@ class Authentication(ApiMixin):
 
 class BaseApiView(MethodView):
 
-    def __init__(self, model, id_type='int'):
-        self.model = model
-        self.model_name = underscore(pluralize(model.__name__))
-        self.endpoint = '/' + dasherize(self.model_name) + '/'
+    def __init__(self, endpoint, id_type='int'):
+        self.endpoint = endpoint
+        self.route_prefix = '/' + dasherize(self.endpoint) + '/'
         self.id_type = id_type
 
     def index(self):
@@ -108,24 +107,23 @@ class BaseApiView(MethodView):
         raise NotImplementedError
 
     def register_on(self, api):
-        endpoint_prefix = self.endpoint
 
-        api.add_url_rule(endpoint_prefix, endpoint=self.model_name + '_index',
+        api.add_url_rule(self.route_prefix, endpoint=self.endpoint + '_index',
                          view_func=self._wrap(self.index), methods=['GET'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_get',
+        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_get',
                          view_func=self._wrap(self.get), methods=['GET'])
 
-        api.add_url_rule(endpoint_prefix, endpoint=self.model_name + '_post',
+        api.add_url_rule(self.route_prefix, endpoint=self.endpoint + '_post',
                          view_func=self._wrap(self.post), methods=['POST'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_put',
+        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_put',
                          view_func=self._wrap(self.put), methods=['PUT'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_patch',
+        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_patch',
                          view_func=self._wrap(self.patch), methods=['PATCH'])
 
-        api.add_url_rule(endpoint_prefix + '<%s:id>' % self.id_type, endpoint=self.model_name + '_delete',
+        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_delete',
                          view_func=self._wrap(self.delete), methods=['DELETE'])
 
     def _wrap(self, f):
@@ -135,7 +133,7 @@ class BaseApiView(MethodView):
             response = f(*args, **kwargs)
             # Do after request
             if g.get('data_encoder', None):
-                response = g.data_encoder.encode(response)
+                response = g.get('data_encoder').encode(response)
 
             return response
 
@@ -148,30 +146,25 @@ class Filter(object):
         raise NotImplementedError
 
 
-class SAModelFilter(Filter):
-
-    def filter(self, dct):
-        del dct['_sa_instance_state']
-        return dct
-
-
 class ModelView(BaseApiView):
 
-    def __init__(self, controller, filter_chain=[], id_type='int'):
-        super(ModelView, self).__init__(controller.model, id_type)
+    def __init__(self, controller, serializer, filter_chain=[], id_type='int'):
+        endpoint = underscore(pluralize(controller.model.__name__))
+        super(ModelView, self).__init__(endpoint, id_type)
         self.controller = controller
+        self.serializer = serializer
         self.filter_chain = filter_chain
 
     def _apply_filters(self, subject):
 
         def apply_filter_chain(m):
-            m = m.to_dict()
+            dct = self.serializer.serialize(m)
 
             for filter in self.filter_chain:
-                m = filter.filter(m)
-            return m
+                dct = filter.filter(dct)
 
-        print str(subject)
+            return dct
+
         if isinstance(subject, BaseModel):
             return apply_filter_chain(subject)
         elif isinstance(subject, Iterable):
@@ -188,11 +181,14 @@ class ModelView(BaseApiView):
     def post(self):
         return self._apply_filters(self.controller.create(g.incoming_data))
 
-    def put(self, id=None):
+    def put(self, id):
+        s = self.controller.update(id, g.incoming_data)
+        d = self._apply_filters(s)
+
+        return d
+
+    def patch(self, id):
         return self._apply_filters(self.controller.update(id, g.incoming_data))
 
-    def patch(self, id=None):
-        return self._apply_filters(self.controller.update(id, g.incoming_data))
-
-    def delete(self, id=None):
+    def delete(self, id):
         return self._apply_filters(self.controller.delete(id))

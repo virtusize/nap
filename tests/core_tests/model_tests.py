@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import skip
-from core.model import Model, Storage
+from core.model import Model, Storage, ModelSerializer
 from core.validation.validators import MinLength, Email, Int
 from tests.helpers import *
 
@@ -92,10 +92,10 @@ def test_inheritance_with_validation():
     assert_equal(len(invalid_instance.validate().errors), 2)
 
 
-def test_to_dict():
+def test_model_serializer():
     model = AModel(id=1, name='foo', admin=True)
-    assert_equal(model.to_dict(), {'id': 1, 'name': 'foo', 'admin': True})
-    assert_equal(model.to_dict(), model.__dict__)
+    assert_equal(ModelSerializer().serialize(model), {'id': 1, 'name': 'foo', 'admin': True})
+    assert_equal(ModelSerializer().serialize(model), model.__dict__)
 
 
 class Thing(Model):
