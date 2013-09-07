@@ -24,7 +24,7 @@ JsonDecoder(api)
 #Authentication(api)
 
 product_type_controller = ModelController(ProductType, ProductTypes)
-product_type_view = ModelView(product_type_controller,filter_chain=[CamelizeFilter()], serializer=ModelSerializer())
+product_type_view = ModelView(product_type_controller, filter_chain=[CamelizeFilter()], serializer=ModelSerializer())
 product_type_view.register_on(api)
 
 store_controller = SAModelController(Store, db_session)

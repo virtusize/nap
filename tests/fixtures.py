@@ -76,7 +76,7 @@ class User(SAModel):
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
     email = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty, EnsureEmail])
-    password = Field(Unicode(255))
+    password = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty])
 
 
 class Store(SAModel):

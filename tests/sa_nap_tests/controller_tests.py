@@ -16,7 +16,7 @@ def test_controller():
         user = c.read(1)
         compare(user.email, email)
 
-        user = c.create({'name': u'Anybody', 'email': 'anybody@example.com'})
+        user = c.create({'name': u'Anybody', 'email': 'anybody@example.com', 'password': '123456'})
         assert_is_not_none(user)
         compare(c.read(user.id), user)
         compare(user.name, 'Anybody')
