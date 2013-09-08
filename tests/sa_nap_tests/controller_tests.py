@@ -6,7 +6,12 @@ from tests.helpers import db, fixtures, db_session, assert_is_not_none, compare,
 
 def test_controller():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
-        c = SAModelController(User, db_session)
+        class UserController(SAModelController):
+            model = User
+            session_factory = db_session
+
+        c = UserController()
+
         user = c.read(1)
         assert_is_not_none(user)
 

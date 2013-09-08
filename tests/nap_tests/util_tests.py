@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from flask.ext.nap.util import Declarative
+from nap.util import Declarative
 from tests.helpers import compare
 
 

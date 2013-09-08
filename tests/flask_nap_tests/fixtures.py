@@ -23,17 +23,37 @@ JsonDecoder(api)
 #MethodOverride(api)
 #Authentication(api)
 
-product_type_controller = ModelController(ProductType, ProductTypes)
-product_type_view = ModelView(product_type_controller, filter_chain=[CamelizeFilter()], serializer=ModelSerializer())
+
+class ProductTypeController(ModelController):
+    model = ProductType
+    model_storage = ProductTypes
+
+#
+# class ProductTypeView(ModelView):
+#     controller = ProductTypeController
+#     filter_chain = [CamelizeFilter()]
+#     serializer = ModelSerializer()
+
+
+product_type_view = ModelView(ProductTypeController(), filter_chain=[CamelizeFilter()], serializer=ModelSerializer())
 product_type_view.register_on(api)
 
-store_controller = SAModelController(Store, db_session)
-store_view = ModelView(store_controller, filter_chain=[CamelizeFilter()], serializer=SAModelSerializer())
+
+class StoreController(SAModelController):
+    model = Store
+    session_factory = db_session
+
+store_view = ModelView(StoreController(), filter_chain=[CamelizeFilter()], serializer=SAModelSerializer())
 store_view.register_on(api)
 
-user_controller = SAModelController(User, db_session)
-user_view = ModelView(user_controller, filter_chain=[ExcludeFilter(['password']), CamelizeFilter()], serializer=SAModelSerializer())
+
+class UserController(SAModelController):
+    model = User
+    session_factory = db_session
+
+user_view = ModelView(UserController(), filter_chain=[ExcludeFilter(['password']), CamelizeFilter()], serializer=SAModelSerializer())
 user_view.register_on(api)
 
 app.register_blueprint(api)
+
 
