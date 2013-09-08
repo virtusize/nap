@@ -1,26 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import types
 
 
-class DeclarativeMeta(type):
-    def __new__(mcs, class_name, bases, new_attrs):
-        cls = type.__new__(mcs, class_name, bases, new_attrs)
-        cls.__classinit__.im_func(cls, new_attrs)
-        return cls
-
-
-class Declarative(object):
+def ensure_instance(cls_or_instance):
     """
-    Subclass this class if you need custom stuff done each time
-    your class is subclassed.
-
-    Usage:
-    class A(Declarative):
-        def __classinit__(cls, attr):
-            #cls is the new class,
-            #attr are the attributes of the new class.
+    Makes sure that we always have an instance,
+    if passed a class, assume it has a default constructor
+    and instantiate it.
     """
-    __metaclass__ = DeclarativeMeta
-
-    def __classinit__(cls, attr):
-        pass
+    if isinstance(cls_or_instance, (type, types.ClassType)):
+        return cls_or_instance()
+    else:
+        return cls_or_instance

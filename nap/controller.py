@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from nap.model import Model, Storage
-from nap.util import Declarative
 
 
-class BaseController(Declarative):
+class BaseController(object):
 
     def index(self, context=None):
         raise NotImplementedError

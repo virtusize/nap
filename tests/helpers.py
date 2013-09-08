@@ -44,7 +44,7 @@ compare = testfixtures.compare
 raises = nt.raises
 
 
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///:memory:', echo=False)
 
 
 db_session = scoped_session(sessionmaker(bind=engine))
