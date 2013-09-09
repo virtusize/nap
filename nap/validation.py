@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+from nap.exceptions import ModelInvalidException
+
 
 class ModelValidator(object):
     """
@@ -40,7 +42,7 @@ class ValidationContext(object):
                 _errors.extend(errors)
 
         if _errors and raise_on_error:
-            raise ValueError(os.linesep.join(_errors))
+            raise ModelInvalidException(model_name=model_instance.__class__.__name__, errors=_errors)
 
         return ValidationResult(_errors)
 

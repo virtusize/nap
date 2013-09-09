@@ -6,6 +6,7 @@ from sa_nap.validators import SQLConstraintsValidator
 
 from tests.fixtures import Users, User, Store, fixture_loader
 
+from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
 from tests.helpers import *
 
@@ -47,7 +48,7 @@ def test_sql_constraints_validator():
         yield (_assert_sql_constraints_validator,) + case
 
 
-@raises(ValueError)
+@raises(ModelInvalidException)
 def test_validate_before_insert():
     with db():
         user = User(name='Hannes')
@@ -55,7 +56,7 @@ def test_validate_before_insert():
         db_session.commit()
 
 
-@raises(ValueError)
+@raises(ModelInvalidException)
 def test_validate_before_insert():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         john = db_session.query(User).get(Users.john.id)
@@ -73,6 +74,4 @@ def test_to_dict():
 def test_tablename():
     assert_equal(Store.__tablename__, 'stores')
     assert_equal(User.__tablename__, 'users')
-
-
 

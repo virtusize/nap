@@ -14,11 +14,16 @@ class Model(BaseModel):
         self.__dict__.update(kwargs)
 
 
-class Storage:
+class Storage(object):
 
     @classmethod
     def _all(cls):
-        return [v for k, v in cls.__dict__.items() if not k.startswith('_')]
+        items = [v for k, v in cls.__dict__.items() if not k.startswith('_')]
+
+        if all([hasattr(e, 'id') for e in items]):
+            items = sorted(items, key=lambda item: getattr(item, 'id'))
+
+        return items
 
     @classmethod
     def _get(cls, id):

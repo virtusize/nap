@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import skip
+from nap.exceptions import ModelNotFoundException
 from nap.model import Model, Storage, ModelSerializer
 from nap.validators import EnsureMinLength, EnsureEmail, FieldValidator, EnsureNotNone, EnsureMaxLength
 from tests.helpers import *

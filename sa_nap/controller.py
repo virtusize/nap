@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from nap.exceptions import ModelNotFoundException
 from nap.controller import BaseController
 
 
@@ -33,4 +34,8 @@ class SAModelController(BaseController):
         return model
 
     def _get_model(self, id):
-        return self.db_session.query(self.model).get(id)
+        model = self.db_session.query(self.model).get(id)
+        if model:
+            return model
+        else:
+            raise ModelNotFoundException(model_id=id, model_name=self.model_name)

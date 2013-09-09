@@ -18,6 +18,10 @@ class Api(Blueprint):
         for v in self.views:
             v._register_on(self)
 
+        self.exception_handlers = [ensure_instance(v) for v in self.exception_handlers]
+        for v in self.exception_handlers:
+            v._register_on(self)
+
 
 class ApiMixin(object):
 

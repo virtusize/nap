@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+from nap.exceptions import ModelNotFoundException
 from sa_nap.controller import SAModelController
 from tests.fixtures import Users, fixture_loader, User
-from tests.helpers import db, fixtures, db_session, assert_is_not_none, compare, assert_is_none
+from tests.helpers import *
+
+class UserController(SAModelController):
+    model = User
+    session_factory = db_session
 
 
 def test_controller():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
-        class UserController(SAModelController):
-            model = User
-            session_factory = db_session
-
         c = UserController()
 
         user = c.read(1)
@@ -26,5 +27,11 @@ def test_controller():
         compare(c.read(user.id), user)
         compare(user.name, 'Anybody')
 
-        c.delete(user.id)
-        assert_is_none(c.read(user.id))
+
+@raises(ModelNotFoundException)
+def test_controller_delete():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = UserController()
+
+        c.delete(Users.john.id)
+        c.read(Users.john.id)

@@ -43,7 +43,7 @@ class BaseView(object):
             if not hasattr(func, '_route_options'):
                 continue
 
-            #Make a copy of hte options
+            #Make a copy of the options
             options = dict(getattr(func, '_route_options'))
 
             if not 'endpoint' in options:
