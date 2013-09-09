@@ -2,7 +2,8 @@
 
 from flask import Flask
 from flask_nap.api import Api, Debug, JsonEncoder, JsonDecoder
-from flask_nap.view import ModelView, CamelizeFilter, ExcludeFilter
+from flask_nap.view import ModelView
+from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
 from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 from tests.fixtures import ProductType, ProductTypes, Store, User
@@ -11,29 +12,56 @@ from nap.model import ModelSerializer
 from nap.controller import ModelController
 
 
+class ProductTypeController(ModelController):
+    model = ProductType
+    model_storage = ProductTypes
+
+
+class ProductTypeView(ModelView):
+    controller = ProductTypeController
+    filter_chain = [CamelizeFilter]
+    serializer = ModelSerializer
+
+
+class StoreController(SAModelController):
+    model = Store
+    session_factory = db_session
+
+
+class StoreView(ModelView):
+    controller = StoreController
+    filter_chain = [CamelizeFilter]
+    serializer = SAModelSerializer
+
+
+class UserController(SAModelController):
+    model = User
+    session_factory = db_session
+
+
+class UserView(ModelView):
+    controller = UserController
+    filter_chain = [ExcludeFilter(['password']), CamelizeFilter]
+    serializer = SAModelSerializer
+
+
+class TestApi(Api):
+    name = 'api'
+    prefix = '/api'
+    version = 1
+    mixins = [
+        Debug(print_request=False, print_response=False),
+        JsonEncoder,
+        JsonDecoder,
+        #MethodOverride(api)
+        #Authentication(api)
+    ]
+    views = [
+        ProductTypeView,
+        StoreView,
+        UserView
+    ]
+
+test_api = TestApi()
 app = Flask(__name__)
-
-
-api = Api('api', '/api', 1)
-
-Debug(api, print_request=False, print_response=False)
-
-JsonEncoder(api)
-JsonDecoder(api)
-#MethodOverride(api)
-#Authentication(api)
-
-product_type_controller = ModelController(ProductType, ProductTypes)
-product_type_view = ModelView(product_type_controller, filter_chain=[CamelizeFilter()], serializer=ModelSerializer())
-product_type_view.register_on(api)
-
-store_controller = SAModelController(Store, db_session)
-store_view = ModelView(store_controller, filter_chain=[CamelizeFilter()], serializer=SAModelSerializer())
-store_view.register_on(api)
-
-user_controller = SAModelController(User, db_session)
-user_view = ModelView(user_controller, filter_chain=[ExcludeFilter(['password']), CamelizeFilter()], serializer=SAModelSerializer())
-user_view.register_on(api)
-
-app.register_blueprint(api)
-
+app.register_blueprint(test_api)

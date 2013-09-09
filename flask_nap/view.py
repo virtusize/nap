@@ -1,112 +1,99 @@
 # -*- coding: utf-8 -*-
+import inspect
 from collections import Iterable
 from functools import wraps
 from itertools import imap
 from flask import g
-from inflection import dasherize, underscore, pluralize, camelize
+from inflection import dasherize, underscore, pluralize
+from flask.ext.nap.view_filters import Filter
 from nap.model import BaseModel
+from nap.util import ensure_instance
+
+DEFAULT_METHODS_MAPPING = dict(
+    get=['GET'],
+    put=['PUT'],
+    post=['POST'],
+    patch=['PATCH'],
+    delete=['DELETE'],
+    index=['GET'],
+    query=['GET']
+)
 
 
-class BaseApiView(object):
+def route(rule, **options):
 
-    def __init__(self, endpoint, id_type='int'):
-        self.endpoint = endpoint
-        self.route_prefix = '/' + dasherize(self.endpoint) + '/'
-        self.id_type = id_type
+    def decorator(f):
+        options['rule'] = rule
+        setattr(f, '_route_options', options)
+        return f
 
-    def index(self):
-        raise NotImplementedError
+    return decorator
 
-    def get(self, id):
-        raise NotImplementedError
 
-    def post(self):
-        raise NotImplementedError
+class InvalidRuleError(RuntimeError):
+    pass
 
-    def put(self, id):
-        raise NotImplementedError
 
-    def patch(self, id):
-        raise NotImplementedError
+class BaseView(object):
+    #endpoint_prefix
 
-    def delete(self, id):
-        raise NotImplementedError
+    def _register_on(self, api):
 
-    def register_on(self, api):
+        for func_name, func in inspect.getmembers(self, predicate=inspect.ismethod):
+            if not hasattr(func, '_route_options'):
+                continue
 
-        api.add_url_rule(self.route_prefix, endpoint=self.endpoint + '_index',
-                         view_func=self._wrap(self.index), methods=['GET'])
+            #Make a copy of hte options
+            options = dict(getattr(func, '_route_options'))
 
-        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_get',
-                         view_func=self._wrap(self.get), methods=['GET'])
+            if not 'endpoint' in options:
+                options['endpoint'] = self.endpoint_prefix + '_' + func_name
 
-        api.add_url_rule(self.route_prefix, endpoint=self.endpoint + '_post',
-                         view_func=self._wrap(self.post), methods=['POST'])
+            if not 'methods' in options:
+                options['methods'] = DEFAULT_METHODS_MAPPING.get(func_name, ['GET'])
 
-        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_put',
-                         view_func=self._wrap(self.put), methods=['PUT'])
+            rule = options.pop('rule', False)
+            if not rule:
+                raise InvalidRuleError('%s is missing a rule' % func_name)
+            rule = rule.format(**self.__dict__)
+            print rule + ' -> ' + str(options)
+            options['view_func'] = self._wrap_view_func(func)
 
-        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_patch',
-                         view_func=self._wrap(self.patch), methods=['PATCH'])
+            api.add_url_rule(rule, **options)
 
-        api.add_url_rule(self.route_prefix + '<%s:id>' % self.id_type, endpoint=self.endpoint + '_delete',
-                         view_func=self._wrap(self.delete), methods=['DELETE'])
+    def before(self, *args, **kwargs):
+        pass
 
-    def _wrap(self, f):
-        @wraps(f)
+    def after(self, response):
+        return response
+
+    def _wrap_view_func(self, func):
+
+        @wraps(func)
         def wrapper(*args, **kwargs):
             # Do before request
-            response = f(*args, **kwargs)
+            self.before(*args, **kwargs)
+
+            #Perform view_funk
+            response = func(*args, **kwargs)
+
             # Do after request
-            if g.get('data_encoder', None):
-                response = g.get('data_encoder').encode(response)
+            response = self.after(response)
 
             return response
 
         return wrapper
 
 
-class Filter(object):
+class ModelView(BaseView):
 
     def __init__(self):
-        pass
-
-    def fiter(self, dct):
-        raise NotImplementedError
-
-
-class KeyFilter(Filter):
-
-    def __init__(self, key_filter):
-        self.key_filter = key_filter
-
-    def filter(self, dct):
-        return {self.key_filter(k): v for (k, v) in dct.items()}
-
-
-class CamelizeFilter(KeyFilter):
-
-    def __init__(self, uppercase_first_letter=False):
-        super(CamelizeFilter, self).__init__(lambda k: camelize(k, uppercase_first_letter))
-
-
-class ExcludeFilter(Filter):
-
-    def __init__(self, exclude=[]):
-        self.exclude = exclude
-
-    def filter(self, dct):
-        return {k: v for (k, v) in dct.items() if not k in self.exclude}
-
-
-class ModelView(BaseApiView):
-
-    def __init__(self, controller, serializer, filter_chain=[], id_type='int'):
-        endpoint = underscore(pluralize(controller.model.__name__))
-        super(ModelView, self).__init__(endpoint, id_type)
-        self.controller = controller
-        self.serializer = serializer
-        self.filter_chain = filter_chain
+        cls = self.__class__
+        self.controller = ensure_instance(cls.controller)
+        self.serializer = ensure_instance(cls.serializer)
+        self.filter_chain = [ensure_instance(f) for f in cls.filter_chain]
+        self.endpoint_prefix = cls.endpoint_prefix if hasattr(cls, 'endpoint_prefix') else underscore(pluralize(self.controller.model.__name__))
+        self.dashed_endpoint = dasherize(self.endpoint_prefix)
 
     def _apply_filters(self, subject):
 
@@ -125,23 +112,32 @@ class ModelView(BaseApiView):
         else:
             raise TypeError('Filters expect the objects to be of type BaseModel')
 
+    def after(self, response):
+        response = self._apply_filters(response)
+        if g.get('data_encoder', None):
+            return g.get('data_encoder').encode(response)
+        return response
+
+    @route('/{dashed_endpoint}/')
     def index(self):
-        return self._apply_filters(self.controller.index())
+        return self.controller.index()
 
+    @route('/{dashed_endpoint}/<int:id>')
     def get(self, id):
-        return self._apply_filters(self.controller.read(id))
+        return self.controller.read(id)
 
+    @route('/{dashed_endpoint}/')
     def post(self):
-        return self._apply_filters(self.controller.create(g.incoming_data))
+        return self.controller.create(g.incoming_data)
 
+    @route('/{dashed_endpoint}/<int:id>')
     def put(self, id):
-        s = self.controller.update(id, g.incoming_data)
-        d = self._apply_filters(s)
+        return self.controller.update(id, g.incoming_data)
 
-        return d
-
+    @route('/{dashed_endpoint}/<int:id>')
     def patch(self, id):
-        return self._apply_filters(self.controller.update(id, g.incoming_data))
+        return self.controller.update(id, g.incoming_data)
 
+    @route('/{dashed_endpoint}/<int:id>')
     def delete(self, id):
-        return self._apply_filters(self.controller.delete(id))
+        return self.controller.delete(id)

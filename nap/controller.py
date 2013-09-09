@@ -24,10 +24,6 @@ class BaseController(object):
 
 class ModelController(BaseController):
 
-    def __init__(self, model, model_storage):
-        self.model = model
-        self.model_storage = model_storage
-
     def index(self, context=None):
         return self.model_storage._all()
 

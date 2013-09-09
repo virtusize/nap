@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from inflection import underscore, pluralize
-from flask.ext.nap.view import BaseApiView, KeyFilter, CamelizeFilter, ExcludeFilter
+from flask_nap.view import BaseView
+from flask_nap.view_filters import CamelizeFilter, ExcludeFilter, KeyFilter
 
 from tests.helpers import *
 from tests.flask_nap_tests.helpers import *
@@ -8,7 +9,7 @@ from tests.fixtures import Stores, Users, fixture_loader
 
 
 def _create_view(model_name):
-    view = BaseApiView(underscore(pluralize(model_name)))
+    view = BaseView(underscore(pluralize(model_name)))
     return view
 
 

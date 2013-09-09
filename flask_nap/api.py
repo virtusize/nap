@@ -2,17 +2,26 @@
 import pprint
 from flask import Blueprint, request, g
 from flask.json import JSONEncoder
+from nap.util import ensure_instance
 
 
 class Api(Blueprint):
 
-    def __init__(self, name, prefix, version):
-        super(Api, self).__init__(name, name, url_prefix=prefix + '/v' + str(version))
+    def __init__(self):
+        super(Api, self).__init__(self.name, self.name, url_prefix=self.prefix + '/v' + str(self.version))
+
+        self.mixins = [ensure_instance(m) for m in self.mixins]
+        for m in self.mixins:
+            m._register_on(self)
+
+        self.views = [ensure_instance(v) for v in self.views]
+        for v in self.views:
+            v._register_on(self)
 
 
 class ApiMixin(object):
 
-    def __init__(self, api):
+    def _register_on(self, api):
         api.before_request(self.before)
         api.after_request(self.after)
 
@@ -25,8 +34,7 @@ class ApiMixin(object):
 
 class Debug(ApiMixin):
 
-    def __init__(self, api, print_request=True, print_response=True):
-        super(Debug, self).__init__(api)
+    def __init__(self, print_request=True, print_response=True):
         self.print_request = print_request
         self.print_response = print_response
 
@@ -50,8 +58,7 @@ class Debug(ApiMixin):
 
 
 class JsonEncoder(ApiMixin):
-    def __init__(self, api):
-        super(JsonEncoder, self).__init__(api)
+    def __init__(self):
         self.encoder = JSONEncoder()
 
     def before(self):
