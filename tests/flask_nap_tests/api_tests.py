@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from tests.flask_nap_tests.fixtures import test_api
+from tests.flask_nap_tests.fixtures import AnApi
 from tests.helpers import assert_equal
 
 
 def test_api_init():
-    assert_equal(test_api.url_prefix, '/api/v1')
-    assert_equal(test_api.name, 'api')
-    assert_equal(test_api.import_name, 'api')
+    an_api = AnApi()
+    assert_equal(an_api.url_prefix, '/api/v1')
+    assert_equal(an_api.name, 'api')
+    assert_equal(an_api.import_name, 'api')
 
 #def test_base_api_view_endpoint():
 #assert_is_instance(_create_view('AwesomeOctopus'), BaseApiView)

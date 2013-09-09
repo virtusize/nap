@@ -45,7 +45,7 @@ class UserView(ModelView):
     serializer = SAModelSerializer
 
 
-class TestApi(Api):
+class AnApi(Api):
     name = 'api'
     prefix = '/api'
     version = 1
@@ -62,6 +62,6 @@ class TestApi(Api):
         UserView
     ]
 
-test_api = TestApi()
+an_api = AnApi()
 app = Flask(__name__)
-app.register_blueprint(test_api)
+app.register_blueprint(an_api)
