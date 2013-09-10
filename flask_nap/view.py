@@ -5,7 +5,6 @@ from functools import wraps
 from itertools import imap
 from flask import g
 from inflection import dasherize, underscore, pluralize
-from flask.ext.nap.view_filters import Filter
 from nap.model import BaseModel
 from nap.util import ensure_instance
 

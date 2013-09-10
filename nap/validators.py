@@ -28,7 +28,7 @@ class FieldValidator(ModelValidator):
 
     def validate(self, model_instance):
         if not self.has_field(model_instance):
-            return ['Model {model} is missing field {field_name}'.format(model=model_instance,
+            return ['Model {model} is missing field {field_name}'.format(model=model_instance.__class__.__name__,
                                                                          field_name=self.field_name)]
         _value_errors = []
         for validator in self.value_validators:

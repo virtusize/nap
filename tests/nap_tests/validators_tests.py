@@ -24,6 +24,30 @@ def assert_value_validator(validator_instance, value, expected):
     assert_equals(bool(result), expected, msg)
 
 
+def test_field_validator():
+    class SomeModel(object):
+        pass
+
+    sm = SomeModel()
+    sm.some_field = 'some_value'
+
+    fv = FieldValidator('some_field')
+
+    assert_true(fv.has_field(sm))
+    compare(fv.get_field(sm), 'some_value')
+
+    fv.set_field(sm, 'another_value')
+    compare(fv.get_field(sm), 'another_value')
+
+    fv = FieldValidator('another_field')
+    result = fv.validate(sm)
+
+    assert_false(fv.has_field(sm))
+    assert_is_instance(result, list)
+    assert_equal(len(result), 1)
+    compare(result[0], 'Model SomeModel is missing field another_field')
+
+
 def test_value_validators():
     cases = [
         (EnsureNone(), None, True),

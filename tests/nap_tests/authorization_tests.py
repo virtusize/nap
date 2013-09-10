@@ -17,6 +17,23 @@ def test_subject_alias():
     assert_equal(subject_alias('user'), 'user')
 
 
+def test_idendity():
+    role = Role()
+    role.grant('read', Store)
+
+    i = Identity([role])
+
+    assert_equal(len(i.roles), 1)
+    compare(i.roles[0], role)
+
+    role = Role()
+    role.grant('write', Store)
+    i.roles.append(role)
+
+    assert_equal(len(i.roles), 2)
+    compare(i.roles[1], role)
+
+
 def test_basic_permission():
     read_store_permission = Permission('read', Store)
     assert_true(read_store_permission.granted_on(Store(), AnyIdentity()))

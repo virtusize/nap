@@ -60,9 +60,9 @@ class ValidationResult(object):
         return self.valid
 
     def __repr__(self):
-        return  'ValidationResult: %s ' % self.valid + os.linesep +\
-                'Errors:' + os.linesep +\
-                os.linesep.join(self.errors)
+        return 'ValidationResult: %s' % self.valid + os.linesep +\
+               'Errors:' + os.linesep +\
+               os.linesep.join(self.errors)
 
 
 class ValidationMetaClass(type):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sqlalchemy as sa
+from nap.validators import FieldValidator, EnsureNotNone
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
 
@@ -75,3 +76,31 @@ def test_tablename():
     assert_equal(Store.__tablename__, 'stores')
     assert_equal(User.__tablename__, 'users')
 
+
+def test_column():
+
+    class SomeModel(SAModel):
+        id = sa.Column(sa.Integer, primary_key=True)
+        some_column = sa.Column(sa.String(255))
+
+    sm = SomeModel(some_column='some_value')
+    assert_is_not_none(sm)
+    assert_equal(sm.some_column, 'some_value')
+
+
+def test_validate_with():
+
+    class AnotherModel(SAModel):
+        id = sa.Column(sa.Integer, primary_key=True)
+        some_column = sa.Column(sa.String(255))
+
+        _validate_with = [FieldValidator('some_column', EnsureNotNone)]
+
+    sm = AnotherModel(some_column='some_value')
+    assert_is_not_none(sm.some_column)
+    assert_true(sm.validate())
+
+    sm = AnotherModel()
+    assert_is_none(sm.some_column)
+    assert_false(sm.validate())
+    assert_equal(len(sm.validate().errors), 1)

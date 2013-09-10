@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from unittest import skip
 from nap.exceptions import ModelNotFoundException
-from nap.model import Model, Storage, ModelSerializer
+from nap.model import Model, Storage, ModelSerializer, BaseSerializer
 from nap.validators import EnsureMinLength, EnsureEmail, FieldValidator, EnsureNotNone, EnsureMaxLength
 from tests.helpers import *
 
@@ -91,6 +91,12 @@ def test_inheritance_with_validation():
     assert_true(valid_instance.validate())
     assert_false(invalid_instance.validate())
     assert_equal(len(invalid_instance.validate().errors), 2)
+
+
+@raises(NotImplementedError)
+def test_base_serializer():
+    bs = BaseSerializer()
+    bs.serialize(AModel())
 
 
 def test_model_serializer():

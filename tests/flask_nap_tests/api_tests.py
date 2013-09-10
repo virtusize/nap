@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask_nap.api import ApiMixin
+from flask import g
+
+from flask_nap.api import ApiMixin, Debug
 from tests.flask_nap_tests.fixtures import AnApi
-from tests.helpers import assert_equal
+from tests.flask_nap_tests.helpers import app
+from tests.helpers import *
 
 
 def test_api_init():
@@ -16,15 +19,11 @@ def test_api_mixin():
     mixin.before()
 
 
-#def test_base_api_view_endpoint():
-#assert_is_instance(_create_view('AwesomeOctopus'), BaseApiView)
+def test_debug_mixin():
+    with app.test_request_context('/'):
+        assert_is_none(g.get('debug'))
 
-#assert_equal(_create_view('Store').route_prefix, '/stores/')
-#assert_equal(_create_view('AwesomeOctopus').route_prefix, '/awesome-octopi/')
-#assert_equal(_create_view('GreyhoundDog').route_prefix, '/greyhound-dogs/')
-#assert_equal(_create_view('Person').route_prefix, '/people/')
+        mixin = Debug()
+        mixin.before()
+        assert_true(g.get('debug'))
 
-#assert_equal(_create_view('Store').endpoint, 'stores')
-#assert_equal(_create_view('AwesomeOctopus').endpoint, 'awesome_octopi')
-#assert_equal(_create_view('GreyhoundDog').endpoint, 'greyhound_dogs')
-#assert_equal(_create_view('Person').endpoint, 'people')

@@ -33,10 +33,6 @@ class Identity:
     def __init__(self, roles):
         self.roles = roles
 
-    @property
-    def roles(self):
-        return self.roles
-
 
 class Role:
     def __init__(self, *args, **kwargs):

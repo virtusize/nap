@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from nap.exceptions import NapException, ModelNotFoundException, ModelInvalidException
+from nap.exceptions import *
 from tests.helpers import compare
 
 
@@ -14,6 +14,8 @@ def test_nap_exception():
     ne = NapException('A nice message', some='some123', values='values321')
     compare(str(ne), u"{'some': 'some123', 'message': 'A nice message', 'values': 'values321'}")
 
+    compare(ne.to_dict(), {'some': 'some123', 'message': 'A nice message', 'values': 'values321'})
+
 
 def test_model_not_found_exception():
     ne = ModelNotFoundException(model_name='User', model_id=1)
@@ -25,3 +27,11 @@ def test_model_invalid_exception():
     compare(str(ne), u"{'message': 'Model is invalid.', 'errors': ['Field missing'], 'model_name': 'User'}")
 
 
+def test_unauthenticated_exception():
+    ne = UnauthenticatedException(model_name='User')
+    compare(str(ne), u"{'message': 'Unauthenticated.', 'model_name': 'User'}")
+
+
+def test_unauthorized_exception():
+    ne = UnauthorizedException(model_name='User')
+    compare(str(ne), u"{'message': 'Unauthorized.', 'model_name': 'User'}")
