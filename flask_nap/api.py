@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pprint
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, make_response
 from flask.json import JSONEncoder
 from nap.util import ensure_instance
 
@@ -21,6 +21,13 @@ class Api(Blueprint):
         self.exception_handlers = [ensure_instance(v) for v in self.exception_handlers]
         for v in self.exception_handlers:
             v._register_on(self)
+
+    def make_response(self, data, status_code):
+        json_data = JSONEncoder().encode(data)
+        response = make_response(json_data)
+        response.status_code = status_code
+        response.mimetype = 'application/json'
+        return response
 
 
 class ApiMixin(object):
@@ -59,14 +66,6 @@ class Debug(ApiMixin):
         if self.print_response:
             print str(dir(response))
         return response
-
-
-class JsonEncoder(ApiMixin):
-    def __init__(self):
-        self.encoder = JSONEncoder()
-
-    def before(self):
-        g.data_encoder = self.encoder
 
 
 class JsonDecoder(ApiMixin):

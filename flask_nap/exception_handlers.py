@@ -7,18 +7,15 @@ from nap.util import ensure_instance
 
 class NapExceptionHandler(object):
 
-    @classmethod
-    def _register_on(cls, api):
-        handler = ensure_instance(cls)
-        api.errorhandler(cls.exception)(handler.handle_exception)
+    def _register_on(self, api):
+        self.api = api
+        api.errorhandler(self.exception)(self.handle_exception)
 
     def handle_exception(self, error):
         dct = error.to_dict()
         dct['status_code'] = self.status_code
-        data = g.get('data_encoder').encode(dct)
-        response = current_app.make_response(data)
-        response.status_code = self.status_code
-        return response
+
+        return self.api.make_response(dct, self.status_code)
 
 
 class UnsupportedMethodExceptionHandler(NapExceptionHandler):

@@ -27,3 +27,4 @@ def test_debug_mixin():
         mixin.before()
         assert_true(g.get('debug'))
 
+        mixin.after({})

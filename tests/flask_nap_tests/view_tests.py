@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from flask_nap.view import BaseView, ModelView, route
+from flask_nap.view import BaseView, ModelView, route, InvalidRuleError
 
 from nap.model import Model
-from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 
 from tests.helpers import *
@@ -26,8 +25,22 @@ def test_base_view():
     urls = app.url_map.bind('example.com', '/')
 
     compare(urls.match('/something/', 'GET'), ('st_something', {}))
-    assert_equal(app.view_functions['st_something'](), 'Some thing')
+    assert_equal(app.view_functions['st_something']().data, 'Some thing')
     assert_is_not_none(app.view_functions['st_something'])
+
+
+@raises(InvalidRuleError)
+def test_base_view_invalid_route():
+    class SomeView(BaseView):
+        endpoint_prefix = 'st'
+
+        @route(None)
+        def something(self):
+            return 'Some thing'
+
+    v = SomeView()
+    v._route_options = {}
+    v._register_on(app)
 
 
 def test_base_api_view_endpoint():
@@ -71,7 +84,7 @@ def test_model_view_apply_filter_not_a_base_model():
         pass
 
     view = UserView()
-    view._apply_filters(NotAModel())
+    view.filter(NotAModel())
 
 
 def test_model_view_get_and_index():

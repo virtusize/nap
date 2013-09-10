@@ -56,30 +56,15 @@ class BaseView(object):
                 raise InvalidRuleError('%s is missing a rule' % func_name)
             rule = rule.format(**self.__dict__)
             print rule + ' -> ' + str(options)
-            options['view_func'] = self._wrap_view_func(func)
+            options['view_func'] = self.make_view(api, func)
 
             api.add_url_rule(rule, **options)
 
-    def before(self, *args, **kwargs):
-        pass
-
-    def after(self, response):
-        return response
-
-    def _wrap_view_func(self, func):
+    def make_view(self, api, func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Do before request
-            self.before(*args, **kwargs)
-
-            #Perform view_funk
-            response = func(*args, **kwargs)
-
-            # Do after request
-            response = self.after(response)
-
-            return response
+            return api.make_response(func(*args, **kwargs))
 
         return wrapper
 
@@ -94,7 +79,7 @@ class ModelView(BaseView):
         self.endpoint_prefix = cls.endpoint_prefix if hasattr(cls, 'endpoint_prefix') else underscore(pluralize(self.controller.model.__name__))
         self.dashed_endpoint = dasherize(self.endpoint_prefix)
 
-    def _apply_filters(self, subject):
+    def filter(self, subject):
 
         def apply_filter_chain(m):
             dct = self.serializer.serialize(m)
@@ -111,32 +96,36 @@ class ModelView(BaseView):
         else:
             raise TypeError('Filters expect the objects to be of type BaseModel')
 
-    def after(self, response):
-        response = self._apply_filters(response)
-        if g.get('data_encoder', None):
-            return g.get('data_encoder').encode(response)
-        return response
+    def make_view(self, api, func):
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            data, code = func(*args, **kwargs)
+            data = self.filter(data)
+            return api.make_response(data, code)
+
+        return wrapper
 
     @route('/{dashed_endpoint}/')
     def index(self):
-        return self.controller.index()
+        return self.controller.index(), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def get(self, id):
-        return self.controller.read(id)
+        return self.controller.read(id), 200
 
     @route('/{dashed_endpoint}/')
     def post(self):
-        return self.controller.create(g.incoming_data)
+        return self.controller.create(g.incoming_data), 201
 
     @route('/{dashed_endpoint}/<int:id>')
     def put(self, id):
-        return self.controller.update(id, g.incoming_data)
+        return self.controller.update(id, g.incoming_data), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def patch(self, id):
-        return self.controller.update(id, g.incoming_data)
+        return self.controller.update(id, g.incoming_data), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def delete(self, id):
-        return self.controller.delete(id)
+        return self.controller.delete(id), 200
