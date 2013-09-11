@@ -7,7 +7,7 @@ from tests.helpers import *
 
 @raises(NotImplementedError)
 def test_filter():
-    Filter().filter({})
+    Filter().filter({}, {})
 
 
 def test_key_filter():
@@ -21,7 +21,7 @@ def test_key_filter():
     def do_something_weird(key):
         return key.upper() + '_k'
 
-    result = KeyFilter(do_something_weird).filter(dct)
+    result = KeyFilter(do_something_weird).filter(dct, context={})
 
     assert_equal(result['NAME_k'], dct['name'])
     assert_equal(result['FULL_NAME_k'], dct['full_name'])
@@ -36,7 +36,7 @@ def test_camelize():
         'favorite_store_product_id': 123
     }
 
-    result = CamelizeFilter().filter(dct)
+    result = CamelizeFilter().filter(dct, context={})
 
     assert_equal(result['name'], dct['name'])
     assert_equal(result['fullName'], dct['full_name'])
@@ -51,9 +51,30 @@ def test_exclude():
         'favorite_store_product_id': 123
     }
 
-    result = ExcludeFilter(exclude=['favorite_store_product_id']).filter(dct)
+    result = ExcludeFilter(exclude=['favorite_store_product_id']).filter(dct, context={})
 
     assert_equal(result['name'], dct['name'])
     assert_equal(result['full_name'], dct['full_name'])
     assert_false('favorite_store_product_id' in result)
 
+
+#def test_exclude_action_filter():
+
+    #dct = {
+        #'name': 'John',
+        #'full_name': 'John Doe',
+        #'secret': 123
+    #}
+
+    #context = {
+            #'identity': Identity()
+    #}
+    #result = ExcludeActionFilter(
+        #exclude=['favorite_store_product_id'],
+        #action='read_secrets',
+        #guard=Guard
+    #).filter(dct, context)
+
+    #assert_equal(result['name'], dct['name'])
+    #assert_equal(result['full_name'], dct['full_name'])
+    #assert_false('favorite_store_product_id' in result)

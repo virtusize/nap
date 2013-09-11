@@ -11,45 +11,74 @@ to allow future users of API to define custom actions.
 
 So I am thinking:
 
-class CRUDActions(ActionsContainer):
+class ApplicationActions(Actions):
 
-    read = Action()
-    create = Action()
-    update = Action()
-    delete = Action()
+    approve_store_product = 'approve_store_product'
+    read_secrets = 'read_secrets'
 
-class ExtendedCRUDActions(CRUDActions):
 
-    manage = Action()
-    manage.include(CRUDActions.read, CRUDActions.write, ...)
 
-    ##Need to test if this kind of inheritance works.
+class ControllerActions(Actions):
+    index = 'index'
+    read = 'read'
+    create = 'create'
+    update = 'update'
+    delete = 'delete'
+    query = 'query'
+    manage = alias(index, read, create, update, delete, query)
+
 
 class Roles(object):
-
+    
     guest = Role()
-    guest.grant('read', Store)
-    guest.grant(CRUDActions.write, 'store')
-
-    admin = Role()
-    admin.inherit(guest)
-    admin.grant('manage', 'store')
+    guest.grant(ControllerActions.read, Product)
+    guest.grant(ControllerActions.read, ProductType)
 
 
-Then the Guard needs to be initialized with all the roles, and actions.
+    owner = Role(inherit=[guest])
+    owner.grant(ApplicationActions.read_secrets, Store, UserIdentity.is_store_owner)
+    owner.grant(ApplicationActions.read_secrets, Product, UserIdentity.is_store_owner_of_product)
+    owner.grant(ControllerActions.manage, Store, UserIdentity.is_store_owner)
+    owner.grant(ControllerActions.manage, Product, UserIdentity.is_store_owner_of_product)
 
-like this:
+    admin = Role(inherit=[guest])
+    admin.grant(ControllerActions.manage, Store)
+    admin.grant(ControllerActions.manage, Product)
 
-guard = Guard(ExtendedCRUDActions, Roles)
 
-or even better:
+class StoreController(ModelController):
+    guard = Guard
 
-MyAppGuard(Guard):
-    actions = ExtendedCRUDActions
-    roles = Roles
 
-class MyAPI(Api):
-    guard = MyAppGuard
+UserIdentity(Identity):
+    def __init__(self, user):
+        user = User
+
+    def is_store_owner(self, store):
+        return store.owner_id == self.user.id
+
+    def is_store_owner_of_product(self, product):
+        return product.store.owner_id == self.user.id
+
+
+class StoreView(ModelView):
+    controller = StoreController
+    filter_chain = [
+        CamelizeFilter,
+        ExcludeActionFilter(
+            exclude=['api_key', 'password'],
+            ApplicationActions.read_secrets,
+            Guard
+        )
+    ]
+    serializer = SAModelSerializer
+
+
+
+
+context.identity = Identity([Roles.admin])
+
+guard.can(context.identity, action_name, subject)
 
 ## Not sure about where to put the guard, maybe on API or controller?!
 ## Prolly better on controller, even if it is repetitive.
@@ -76,14 +105,17 @@ class Guard(object):
 
     def can(self, identity, action, subject):
         subject_name = subject_alias(subject)
-        key_set = set([(action, subject_name), (action, 'all'), ('manage', subject_name), ('manage', 'all')])
+        key = (action, subject_name)
 
         for role in identity.roles:
             for permission in role.permissions:
-                if permission.key in key_set and permission.granted_on(subject, identity):
+                if permission.key == key and permission.granted_on(subject, identity):
                     return True
 
         return False
+
+    def cannot(self, identity, action, subject):
+        return not self.can(identity, action, subject)
 
 
 class Identity(object):
@@ -92,22 +124,44 @@ class Identity(object):
         self.roles = roles
 
 
-class Role(object):
-    def __init__(self, *args, **kwargs):
-        self.permissions = []
-
-    def grant(self, *args, **kwargs):
-        self.permissions.append(Permission(*args, **kwargs))
-        return self
-
-
 def true_condition(self, *args, **kwargs):
     return True
 
 
+class Role(object):
+    def __init__(self, inherit=[]):
+        self.permissions = []
+        for role in inherit:
+            self.permissions += role.permissions
+
+    def grant(self, actions, subject, condition=true_condition):
+        if not isinstance(actions, list):
+            actions = [actions]
+
+        for action in actions:
+            self.permissions.append(Permission(action, subject, condition))
+
+
+class Actions(object):
+
+    @classmethod
+    def alias(cls, *args, **kwargs):
+        return list(args)
+
+
+class ControllerActions(Actions):
+    index = 'index'
+    read = 'read'
+    create = 'create'
+    update = 'update'
+    delete = 'delete'
+    query = 'query'
+    manage = Actions.alias(index, read, create, update, delete, query)
+
+
 class Permission(object):
 
-    def __init__(self, action, subject, condition=true_condition):
+    def __init__(self, action, subject, condition):
         self.action = action
         self.subject = subject_alias(subject)
         self.condition = condition

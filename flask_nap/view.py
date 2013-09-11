@@ -79,13 +79,13 @@ class ModelView(BaseView):
         self.endpoint_prefix = cls.endpoint_prefix if hasattr(cls, 'endpoint_prefix') else underscore(pluralize(self.controller.model.__name__))
         self.dashed_endpoint = dasherize(self.endpoint_prefix)
 
-    def filter(self, subject):
+    def filter(self, subject, context):
 
         def apply_filter_chain(m):
             dct = self.serializer.serialize(m)
 
             for filter in self.filter_chain:
-                dct = filter.filter(dct)
+                dct = filter.filter(dct, context)
 
             return dct
 
@@ -101,7 +101,7 @@ class ModelView(BaseView):
         @wraps(func)
         def wrapper(*args, **kwargs):
             data, code = func(*args, **kwargs)
-            data = self.filter(data)
+            data = self.filter(data, g)
             return api.make_response(data, code)
 
         return wrapper

@@ -61,54 +61,6 @@ class ProductView(ModelView):
     serializer = SAModelSerializer
 
 
-###########################
-# Authorization pseudo code
-###########################
-
-"""
-class AdminRole(Role):
-
-    permissions = [
-        StoreController.permissions.manage,
-        ProductController.permissions.manage,
-        UserController.permissions.manage,
-        ProductTypeController.permissions.manage,
-    ]
-
-
-class StoreOwnerRole(Role):
-
-    permissions = [
-        StoreController.permissions.manage,
-        ProductController.permissions.manage,
-        ProductTypeController.permissions.index,
-        ProductTypeController.permissions.read,
-        UserController.permissions.read,
-        UserController.permissions.write,
-    ]
-
-
-class AnonymousRole(Role):
-
-    permissions = [
-        ProductController.permissions.read,
-        ProductTypeController.permissions.index,
-        ProductTypeController.permissions.read,
-    ]
-"""
-
-# Then later somewhere
-"""
-g.identity = Identity([AdminRole])
-"""
-
-# before a controller method is executed the following.
-# Raises exception that is handled by our exception handlers
-"""
-self.guard.can(g.identity, method_name, prefetched_model||None)
-"""
-
-
 class AnApi(Api):
     name = 'api'
     prefix = '/api'
