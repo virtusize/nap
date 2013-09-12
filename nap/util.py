@@ -13,3 +13,25 @@ def ensure_instance(cls_or_instance):
         return cls_or_instance()
     else:
         return cls_or_instance
+
+
+class Context(object):
+    """A plain object."""
+
+    def get(self, name, default=None):
+        return self.__dict__.get(name, default)
+
+    def __contains__(self, item):
+        return item in self.__dict__
+
+    def __iter__(self):
+        return iter(self.__dict__)
+
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value

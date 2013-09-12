@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from nap.authorization import Identity, Role, Guard
+from nap.util import Context
 from flask_nap.view_filters import Filter, CamelizeFilter, ExcludeFilter, ExcludeActionFilter, KeyFilter
 
 from tests.helpers import *
@@ -22,7 +23,7 @@ def test_key_filter():
     def do_something_weird(key):
         return key.upper() + '_k'
 
-    result = KeyFilter(do_something_weird).filter(dct, context={})
+    result = KeyFilter(do_something_weird).filter(dct, ctx=Context())
 
     assert_equal(result['NAME_k'], dct['name'])
     assert_equal(result['FULL_NAME_k'], dct['full_name'])
@@ -37,7 +38,7 @@ def test_camelize():
         'favorite_store_product_id': 123
     }
 
-    result = CamelizeFilter().filter(dct, context={})
+    result = CamelizeFilter().filter(dct, ctx=Context())
 
     assert_equal(result['name'], dct['name'])
     assert_equal(result['fullName'], dct['full_name'])
@@ -52,7 +53,7 @@ def test_exclude():
         'favorite_store_product_id': 123
     }
 
-    result = ExcludeFilter(exclude=['favorite_store_product_id']).filter(dct, context={})
+    result = ExcludeFilter(exclude=['favorite_store_product_id']).filter(dct, ctx=Context())
 
     assert_equal(result['name'], dct['name'])
     assert_equal(result['full_name'], dct['full_name'])
@@ -73,24 +74,25 @@ def test_exclude_action_filter():
     valid_identity = Identity([role])
     invalid_identity = Identity([])
 
-    context = {'subject': 'user'}
-    context['identity'] = valid_identity
+    ctx = Context()
+    ctx.subject = 'user'
+    ctx.identity = valid_identity
 
     result = ExcludeActionFilter(
         exclude=['secret'],
         action='read_secrets',
         guard=Guard()
-    ).filter(dct, context)
+    ).filter(dct, ctx)
 
     assert_true('secret' in result)
     assert_equal(result['secret'], 123)
 
-    context['identity'] = invalid_identity
+    ctx.identity = invalid_identity
 
     result = ExcludeActionFilter(
         exclude=['secret'],
         action='read_secrets',
         guard=Guard()
-    ).filter(dct, context)
+    ).filter(dct, ctx)
 
     assert_false('secret' in result)

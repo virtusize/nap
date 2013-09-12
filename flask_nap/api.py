@@ -2,13 +2,14 @@
 import pprint
 from flask import Blueprint, request, g, make_response
 from flask.json import JSONEncoder
-from nap.util import ensure_instance
+from nap.util import ensure_instance, Context
 
 
 class Api(Blueprint):
 
     def __init__(self):
         super(Api, self).__init__(self.name, self.name, url_prefix=self.prefix + '/v' + str(self.version))
+        self.before_request(self.setup_ctx)
 
         self.mixins = [ensure_instance(m) for m in self.mixins]
         for m in self.mixins:
@@ -28,6 +29,9 @@ class Api(Blueprint):
         response.status_code = status_code
         response.mimetype = 'application/json'
         return response
+
+    def setup_ctx(self):
+        g.ctx = Context()
 
 
 class ApiMixin(object):
@@ -70,7 +74,7 @@ class Debug(ApiMixin):
 
 class JsonDecoder(ApiMixin):
     def before(self):
-        g.incoming_data = request.get_json()
+        g.ctx.input = request.get_json()
 
 
 class MethodOverride(ApiMixin):

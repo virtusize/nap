@@ -84,7 +84,7 @@ def test_model_view_apply_filter_not_a_base_model():
         pass
 
     view = UserView()
-    view.filter(NotAModel(), {})
+    view.filter(NotAModel())
 
 
 def test_model_view_get_and_index():

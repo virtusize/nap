@@ -93,6 +93,8 @@ def subject_alias(subject):
         return underscore(subject)
     elif isinstance(subject, type):
         return underscore(subject.__name__)
+    elif isinstance(subject, list) and all(type(item) == type(subject[0]) for item in subject):
+        return underscore(type(subject[0]).__name__)
     else:
         return underscore(type(subject).__name__)
 
@@ -107,15 +109,26 @@ class Guard(object):
         subject_name = subject_alias(subject)
         key = (action, subject_name)
 
-        for role in identity.roles:
-            for permission in role.permissions:
-                if permission.key == key and permission.granted_on(subject, identity):
-                    return True
+        subjects = subject if isinstance(subject, list) else [subject]
+
+        results = []
+        for item in subjects:
+            results.append(self._authorize(item, identity, key))
+
+        if len(results) > 0 and all(results):
+            return True
 
         return False
 
     def cannot(self, identity, action, subject):
         return not self.can(identity, action, subject)
+
+    def _authorize(self, subject, identity, key):
+        for role in identity.roles:
+            for permission in role.permissions:
+                if permission.key == key and permission.granted_on(subject, identity):
+                    return True
+        return False
 
 
 class Identity(object):

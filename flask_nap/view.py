@@ -79,13 +79,13 @@ class ModelView(BaseView):
         self.endpoint_prefix = cls.endpoint_prefix if hasattr(cls, 'endpoint_prefix') else underscore(pluralize(self.controller.model.__name__))
         self.dashed_endpoint = dasherize(self.endpoint_prefix)
 
-    def filter(self, subject, context):
+    def filter(self, subject):
 
         def apply_filter_chain(m):
             dct = self.serializer.serialize(m)
 
             for filter in self.filter_chain:
-                dct = filter.filter(dct, context)
+                dct = filter.filter(dct, g.ctx)
 
             return dct
 
@@ -101,31 +101,31 @@ class ModelView(BaseView):
         @wraps(func)
         def wrapper(*args, **kwargs):
             data, code = func(*args, **kwargs)
-            data = self.filter(data, g)
+            data = self.filter(data)
             return api.make_response(data, code)
 
         return wrapper
 
     @route('/{dashed_endpoint}/')
     def index(self):
-        return self.controller.index(), 200
+        return self.controller.index(g.ctx), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def get(self, id):
-        return self.controller.read(id), 200
+        return self.controller.read(id, g.ctx), 200
 
     @route('/{dashed_endpoint}/')
     def post(self):
-        return self.controller.create(g.incoming_data), 201
+        return self.controller.create(g.ctx.input, g.ctx), 201
 
     @route('/{dashed_endpoint}/<int:id>')
     def put(self, id):
-        return self.controller.update(id, g.incoming_data), 200
+        return self.controller.update(id, g.ctx.input, g.ctx), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def patch(self, id):
-        return self.controller.update(id, g.incoming_data), 200
+        return self.controller.update(id, g.ctx.input, g.ctx), 200
 
     @route('/{dashed_endpoint}/<int:id>')
     def delete(self, id):
-        return self.controller.delete(id), 200
+        return self.controller.delete(id, g.ctx), 200

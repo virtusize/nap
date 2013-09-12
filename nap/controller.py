@@ -1,98 +1,60 @@
 # -*- coding: utf-8 -*-
 
-from functools import wraps
-
 from nap.exceptions import ModelNotFoundException, UnsupportedMethodException, UnauthorizedException
 
 
 class BaseController(object):
 
-    def index(self, context=None):
+    def index(self, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
-    def read(self, id, context=None):
+    def read(self, id, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
-    def create(self, attributes, context=None):
+    def create(self, attributes, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
-    def update(self, id, attributes, context=None):
+    def update(self, id, attributes, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
-    def delete(self, id, context=None):
+    def delete(self, id, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
-    def query(self, query, context=None):
+    def query(self, query, ctx=None):
         raise UnsupportedMethodException(model_name=self.model_name)
 
     @property
     def model_name(self):
         return self.model.__name__ if hasattr(self, 'model') and self.model.__name__ else self.__class__.__name__
 
+    def authorize(self, ctx, action, model_or_list):
+        if not hasattr(self, 'guard'):
+            return model_or_list
 
-def fetch_instance(f):
-    @wraps(f)
-    def wrapper(controller, id, context=None):
-        if not context:
-            context = {}
+        elif not ctx or 'identity' not in ctx:
+            raise UnauthorizedException(self.model_name)
 
-        context['subject'] = controller._fetch_instance(id)
+        if self.guard.cannot(ctx['identity'], action, model_or_list):
+            raise UnauthorizedException(self.model_name)
 
-        return f(controller, id, context=context)
-
-    return wrapper
-
-
-def fetch_collection(f):
-    @wraps(f)
-    def wrapper(controller, context=None):
-        if not context:
-            context = {}
-
-        context['subject'] = controller._fetch_collection()
-
-        return f(controller, context=context)
-
-    return wrapper
-
-
-def authorize(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if len(args) == 1:
-            controller, = args
-        elif len(args) == 2:
-            controller, id = args
-
-        if 'context' in kwargs and\
-           'identity' in kwargs['context'] and\
-           'subject' in kwargs['context'] and\
-           controller.guard:
-            if controller.guard.cannot(kwargs['context']['identity'], f.__name__, kwargs['context']['subject']):
-                raise UnauthorizedException(controller.model_name)
-
-        return f(*args, **kwargs)
-
-    return wrapper
+        return model_or_list
 
 
 class ModelController(BaseController):
 
-    @fetch_collection
-    @authorize
-    def index(self, context=None):
-        return context['subject']
+    def index(self, ctx=None):
+        return self.authorize(ctx, 'read', self.fetch_all())
 
-    @fetch_instance
-    @authorize
-    def read(self, id, context=None):
-        if context['subject']:
-            return context['subject']
-        else:
+    def read(self, id, ctx=None):
+        return self.authorize(ctx, 'read', self.fetch_model(id))
+
+    def fetch_model(self, id):
+        model = self.model_storage._get(id)
+
+        if not model:
             raise ModelNotFoundException(model_id=id, model_name=self.model_name)
 
-    def _fetch_instance(self, id):
-        return self.model_storage._get(id)
+        return model
 
-    def _fetch_collection(self):
+    def fetch_all(self):
         return self.model_storage._all()

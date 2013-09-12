@@ -9,8 +9,6 @@ from tests.helpers import *
 class UserController(SAModelController):
     model = User
     session_factory = db_session
-    guard = Guard()
-
 
 def test_controller():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
