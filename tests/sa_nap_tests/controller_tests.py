@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from nap.exceptions import ModelNotFoundException
+from nap.authorization import Guard
 from sa_nap.controller import SAModelController
 from tests.fixtures import Users, fixture_loader, User
 from tests.helpers import *
 
+
 class UserController(SAModelController):
     model = User
     session_factory = db_session
+    guard = Guard()
 
 
 def test_controller():
@@ -35,3 +38,6 @@ def test_controller_delete():
 
         c.delete(Users.john.id)
         c.read(Users.john.id)
+
+
+
