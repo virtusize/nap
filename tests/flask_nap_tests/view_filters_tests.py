@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask_nap.view_filters import Filter, CamelizeFilter, ExcludeFilter, KeyFilter
+from nap.authorization import Identity, Role, Guard
+from flask_nap.view_filters import Filter, CamelizeFilter, ExcludeFilter, ExcludeActionFilter, KeyFilter
 
 from tests.helpers import *
 
@@ -58,23 +59,38 @@ def test_exclude():
     assert_false('favorite_store_product_id' in result)
 
 
-#def test_exclude_action_filter():
+def test_exclude_action_filter():
 
-    #dct = {
-        #'name': 'John',
-        #'full_name': 'John Doe',
-        #'secret': 123
-    #}
+    dct = {
+        'name': 'John',
+        'full_name': 'John Doe',
+        'secret': 123
+    }
 
-    #context = {
-            #'identity': Identity()
-    #}
-    #result = ExcludeActionFilter(
-        #exclude=['favorite_store_product_id'],
-        #action='read_secrets',
-        #guard=Guard
-    #).filter(dct, context)
+    role = Role()
+    role.grant('read_secrets', 'user')
 
-    #assert_equal(result['name'], dct['name'])
-    #assert_equal(result['full_name'], dct['full_name'])
-    #assert_false('favorite_store_product_id' in result)
+    valid_identity = Identity([role])
+    invalid_identity = Identity([])
+
+    context = {'subject': 'user'}
+    context['identity'] = valid_identity
+
+    result = ExcludeActionFilter(
+        exclude=['secret'],
+        action='read_secrets',
+        guard=Guard()
+    ).filter(dct, context)
+
+    assert_true('secret' in result)
+    assert_equal(result['secret'], 123)
+
+    context['identity'] = invalid_identity
+
+    result = ExcludeActionFilter(
+        exclude=['secret'],
+        action='read_secrets',
+        guard=Guard()
+    ).filter(dct, context)
+
+    assert_false('secret' in result)

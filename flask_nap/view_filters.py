@@ -44,7 +44,7 @@ class ExcludeActionFilter(ExcludeFilter):
         self.guard = guard
 
     def filter(self, dct, context):
-        if self.guard.cannot(context.identity, self.action, context.subject):
+        if self.guard.cannot(context['identity'], self.action, context['subject']):
             return super(ExcludeActionFilter, self).filter(dct, context)
 
         return dct
