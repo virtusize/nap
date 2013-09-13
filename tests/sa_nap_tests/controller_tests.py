@@ -47,34 +47,3 @@ def test_controller_delete():
 
         c.delete(Users.john.id)
         c.read(Users.john.id)
-
-
-def test_two_controllers():
-    with db(), fixtures(Stores, Products, fixture_loader=fixture_loader):
-        sc = StoreController()
-        store = sc.read(Stores.virtusize.id)
-        assert_is_not_none(store)
-        assert_is_instance(store, Store)
-
-        pc = ProductController()
-        product = pc.read(Products.dress.id)
-        assert_is_not_none(product)
-        assert_is_instance(product, Product)
-
-
-def test_two_controller_models():
-    compare(StoreController.model, Store)
-    compare(ProductController.model, Product)
-
-    sc = StoreController()
-
-    compare(StoreController.model, Store)
-    compare(sc.model, Store)
-    compare(ProductController.model, Product)
-
-    pc = ProductController()
-
-    compare(StoreController.model, Store)
-    compare(sc.model, Store)
-    compare(ProductController.model, Product)
-    compare(pc.model, Product)

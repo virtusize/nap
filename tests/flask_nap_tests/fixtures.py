@@ -71,7 +71,7 @@ class GuestIdentity(Identity):
 
 class Authentication(ApiMixin):
     def before(self):
-        if 'api_key' in request.args and request.args['api_key'] == '123xyz':
+        if request.args.has_key('api_key') and request.args.get('api_key', None) == '123xyz':
             g.ctx.identity = GuestIdentity()
 
 

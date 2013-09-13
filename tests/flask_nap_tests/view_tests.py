@@ -3,10 +3,11 @@ from flask_nap.view import BaseView, ModelView, route, InvalidRuleError
 
 from nap.model import Model
 from sa_nap.model import SAModelSerializer
+from sa_nap.controller import SAModelController
 
 from tests.helpers import *
 from tests.flask_nap_tests.helpers import *
-from tests.flask_nap_tests.fixtures import UserView, UserController
+from tests.flask_nap_tests.fixtures import UserView
 from tests.fixtures import Stores, Users, fixture_loader
 
 
@@ -44,8 +45,11 @@ def test_base_view_invalid_route():
 
 
 def test_base_api_view_endpoint():
+    class AController(SAModelController):
+        pass
+        
     class AView(ModelView):
-        controller = UserController
+        controller = AController
         filter_chain = []
         serializer = SAModelSerializer
 
@@ -179,3 +183,31 @@ def test_unauthorized_samodel_view_get_index():
         assert_equal(response.json['message'], 'Unauthorized.')
 
 
+def test_authorized_samodel_view_get_index():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/users/?api_key=123xyz')
+        assert_equal(response.status_code, 200)
+        users = response.json
+        assert_equal(len(users), 2)
+
+
+def test_unauthorized_samodel_view_get():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/users/%s' % Users.john.id)
+        assert_equal(response.status_code, 403)
+        assert_equal(response.json['model_name'], 'User')
+        assert_equal(response.json['message'], 'Unauthorized.')
+
+
+def test_authorized_samodel_view_get():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/users/%s?api_key=123xyz' % Users.john.id)
+        assert_equal(response.status_code, 200)
+        user = response.json
+        assert_equal(user['name'], 'John')
