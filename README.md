@@ -1,6 +1,6 @@
 # Nap. A Python API framework with support for Flask and SQLAlchemy.
 
-#### Features
+## Features
 
 - Tableless and SqlAlchemy models
 - Controllers for both model types
