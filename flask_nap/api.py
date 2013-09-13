@@ -75,11 +75,3 @@ class Debug(ApiMixin):
 class JsonDecoder(ApiMixin):
     def before(self):
         g.ctx.input = request.get_json()
-
-
-class MethodOverride(ApiMixin):
-    pass
-
-
-class Authentication(ApiMixin):
-    pass

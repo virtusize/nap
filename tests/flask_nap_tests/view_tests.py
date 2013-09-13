@@ -91,6 +91,7 @@ def test_model_view_get_and_index():
     c = app.test_client()
 
     response = c.get('/api/v1/product-types/')
+    assert_equal(response.status_code, 200)
     assert_is_not_none(response.json)
     assert_equal(len(c.get('/api/v1/product-types/').json), 3)
 
@@ -104,6 +105,7 @@ def test_samodel_view_get_and_index():
         c = app.test_client()
 
         response = c.get('/api/v1/stores/')
+        assert_equal(response.status_code, 200)
         assert_is_not_none(response.json)
         assert_equal(len(c.get('/api/v1/stores/').json), 3)
 
@@ -116,7 +118,10 @@ def test_samodel_view_post():
     with db(), fixtures(Stores, fixture_loader=fixture_loader):
         c = app.test_client()
 
-        response = c.post('/api/v1/stores/', **with_json_data({'name': 'New Store', 'owner_id': Users.john.id})).json
+        response = c.post('/api/v1/stores/', **with_json_data({'name': 'New Store', 'owner_id': Users.john.id}))
+        assert_equal(response.status_code, 201)
+
+        response = response.json
         assert_is_not_none(response)
         response = c.get('/api/v1/stores/4').json
         assert_equal(response['name'], 'New Store')
@@ -129,11 +134,17 @@ def test_samodel_view_put_patch():
         store = c.put('/api/v1/stores/1', **with_json_data({'name': 'Some other name'})).json
         assert_is_not_none(store)
 
-        response = c.get('/api/v1/stores/1').json
+        response = c.get('/api/v1/stores/1')
+        assert_equal(response.status_code, 200)
+
+        response = response.json
         compare(response, store)
         assert_equal(response['name'], 'Some other name')
 
-        store = c.patch('/api/v1/stores/1', **with_json_data({'name': 'Yet other name'})).json
+        response = c.patch('/api/v1/stores/1', **with_json_data({'name': 'Yet other name'}))
+        assert_equal(response.status_code, 200)
+
+        store = response.json
         assert_is_not_none(store)
 
         response = c.get('/api/v1/stores/1').json
@@ -145,7 +156,10 @@ def test_samodel_view_delete():
     with db(), fixtures(Stores, fixture_loader=fixture_loader):
         c = app.test_client()
 
-        store = c.get('/api/v1/stores/1').json
+        response = c.get('/api/v1/stores/1')
+        assert_equal(response.status_code, 200)
+
+        store = response.json
 
         assert_equal(len(c.get('/api/v1/stores/').json), 3)
         response = c.delete('/api/v1/stores/1').json
@@ -153,5 +167,15 @@ def test_samodel_view_delete():
         assert_equal(len(c.get('/api/v1/stores/').json), 2)
 
         compare(store, response)
+
+
+def test_unauthorized_samodel_view_get_index():
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/users/')
+        assert_equal(response.status_code, 403)
+        assert_equal(response.json['model_name'], 'User')
+        assert_equal(response.json['message'], 'Unauthorized.')
 
 

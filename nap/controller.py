@@ -34,7 +34,7 @@ class BaseController(object):
         elif not ctx or 'identity' not in ctx:
             raise UnauthorizedException(self.model_name)
 
-        if self.guard.cannot(ctx['identity'], action, model_or_list):
+        if self.guard.cannot(ctx.identity, action, model_or_list):
             raise UnauthorizedException(self.model_name)
 
         return model_or_list

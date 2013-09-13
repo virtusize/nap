@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from nap.authorization import Actions, Guard, Identity, Role, Permission, subject_alias, true_condition
+from nap.authorization import Actions, Guard, Identity, Role, Permission, subject_alias, true_condition, ControllerActions
 from nap.model import Model
 from tests.helpers import *
 
@@ -77,6 +77,10 @@ def test_role_inheritance():
     assert_equal(len(another_role.permissions), 5)
 
 
+def test_controller_actions():
+    compare(ControllerActions.manage, ['index', 'read', 'create', 'update', 'delete', 'query'])
+
+
 def test_permissions_without_conditions():
     guard = Guard()
     role = Role()
@@ -88,6 +92,7 @@ def test_permissions_without_conditions():
 
     assert_false(guard.cannot(identity, 'read', Store))
     assert_false(guard.cannot(identity, 'read', Store()))
+
 
 def false_condition(subject, identity):
     return False
@@ -119,7 +124,7 @@ def test_permissions_with_is_the_same_condition():
     identity.something = 'check'
 
     store = Store()
-    store.something = 'check' 
+    store.something = 'check'
     assert_true(guard.can(identity, 'check_for_something', store))
     store.something = 2
     assert_false(guard.can(identity, 'check_for_somethingone', store))

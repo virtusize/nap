@@ -30,7 +30,7 @@ def test_key_filter():
     assert_equal(result['FAVORITE_STORE_PRODUCT_ID_k'], dct['favorite_store_product_id'])
 
 
-def test_camelize():
+def test_camelize_filter():
 
     dct = {
         'name': 'John',
@@ -45,7 +45,7 @@ def test_camelize():
     assert_equal(result['favoriteStoreProductId'], dct['favorite_store_product_id'])
 
 
-def test_exclude():
+def test_exclude_filter():
 
     dct = {
         'name': 'John',

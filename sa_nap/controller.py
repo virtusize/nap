@@ -4,6 +4,8 @@ from nap.controller import BaseController
 
 
 class SAModelController(BaseController):
+    #def __init__(self):
+        #self.model = self.model
 
     def index(self, ctx=None):
         return self.authorize(ctx, 'read', self.fetch_all())

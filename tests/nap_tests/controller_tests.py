@@ -58,9 +58,69 @@ def test_base_controller_query():
     BaseController().query({})
 
 
+def test_base_controller_model_name():
+    bc = BaseController()
+    assert_equal(bc.model_name, 'BaseController')
+
+    bc.model = SomeModel
+    assert_equal(bc.model_name, 'SomeModel')
+
+
+def test_base_controller_authorize():
+    bc = BaseController()
+    model = 'something'
+    ctx = Context()
+    assert_equal(bc.authorize(ctx, 'read', model), model)
+
+
+@raises(UnauthorizedException)
+def test_base_controller_authorize_no_ctx():
+    bc = BaseController()
+    model = 'something'
+    bc.guard = Guard()
+    ctx = None
+    bc.authorize(ctx, 'read', model)
+
+
+@raises(UnauthorizedException)
+def test_base_controller_authorize_no_identity():
+    bc = BaseController()
+    model = 'something'
+    bc.guard = Guard()
+    ctx = Context()
+    bc.authorize(ctx, 'read', model)
+
+
+@raises(UnauthorizedException)
+def test_base_controller_authorize_no_role():
+    bc = BaseController()
+    model = 'something'
+    bc.guard = Guard()
+    ctx = Context()
+    ctx.identity = Identity([])
+    bc.authorize(ctx, 'read', model)
+
+
+def test_base_controller_authorize_successful():
+    bc = BaseController()
+    model = SomeModel()
+    bc.guard = Guard()
+    bc.model = SomeModel
+    ctx = Context()
+    role = Role()
+    role.grant('read', SomeModel)
+    ctx.identity = Identity([role])
+    bc.authorize(ctx, 'read', model)
+
+
 def test_model_controller_index():
     assert_equal(len(SomeModelController().index()), 2)
     compare(SomeModelController().index(), [SomeModels.one, SomeModels.two])
+
+
+def test_model_controller_fetch_all():
+    assert_equal(len(SomeModelController().fetch_all()), 2)
+    compare(SomeModelController().fetch_all(), [SomeModels.one, SomeModels.two])
 
 
 def test_model_controller_index_with_ctx_kwarg():
@@ -77,6 +137,10 @@ def test_model_controller_read():
     compare(SomeModelController().read(SomeModels.one.id), SomeModels.one)
 
 
+def test_model_controller_fetch_model():
+    compare(SomeModelController().fetch_model(SomeModels.one.id), SomeModels.one)
+
+
 def test_model_controller_read_with_ctx_kwarg():
     compare(SomeModelController().read(SomeModels.one.id, ctx={}), SomeModels.one)
 
@@ -88,6 +152,11 @@ def test_model_controller_read_with_ctx_arg():
 @raises(ModelNotFoundException)
 def test_model_controller_read_not_found():
     SomeModelController().read(3)
+
+
+@raises(ModelNotFoundException)
+def test_model_controller_fetch_model_not_found():
+    SomeModelController().fetch_model(3)
 
 
 def test_model_guard_controller_read():

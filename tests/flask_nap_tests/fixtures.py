@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask
-from flask_nap.api import Api, Debug, JsonDecoder
+from flask import Flask, g, request
+from flask_nap.api import Api, Debug, JsonDecoder, ApiMixin
 from flask_nap.view import ModelView
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
-from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler
+from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler
 from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 from tests.fixtures import ProductType, ProductTypes, Store, User, Product
 from tests.helpers import db_session
 from nap.model import ModelSerializer
 from nap.controller import ModelController
+from nap.authorization import Guard, ControllerActions, Role, Identity
 
 
 class ProductTypeController(ModelController):
     model = ProductType
     model_storage = ProductTypes
-    #guard = Guard
 
 
 class ProductTypeView(ModelView):
@@ -28,7 +28,6 @@ class ProductTypeView(ModelView):
 class StoreController(SAModelController):
     model = Store
     session_factory = db_session
-    #guard = Guard
 
 
 class StoreView(ModelView):
@@ -40,7 +39,7 @@ class StoreView(ModelView):
 class UserController(SAModelController):
     model = User
     session_factory = db_session
-    #guard = Guard
+    guard = Guard()
 
 
 class UserView(ModelView):
@@ -52,7 +51,6 @@ class UserView(ModelView):
 class ProductController(SAModelController):
     model = Product
     session_factory = db_session
-    #guard = Guard
 
 
 class ProductView(ModelView):
@@ -61,26 +59,45 @@ class ProductView(ModelView):
     serializer = SAModelSerializer
 
 
+class Roles(object):
+    guest = Role()
+    guest.grant(ControllerActions.read, User)
+
+
+class GuestIdentity(Identity):
+    def __init__(self):
+        super(GuestIdentity, self).__init__([Roles.guest])
+
+
+class Authentication(ApiMixin):
+    def before(self):
+        if 'api_key' in request.args and request.args['api_key'] == '123xyz':
+            g.ctx.identity = GuestIdentity()
+
+
 class AnApi(Api):
     name = 'api'
     prefix = '/api'
     version = 1
     mixins = [
+        Authentication,
         Debug(print_request=False, print_response=False),
-        JsonDecoder,
-        #MethodOverride
-        #Authentication
+        JsonDecoder
     ]
     views = [
         ProductTypeView,
+        ProductView,
         StoreView,
         UserView
     ]
     exception_handlers = [
         UnsupportedMethodExceptionHandler,
         ModelNotFoundExceptionHandler,
-        ModelInvalidExceptionHandler
+        ModelInvalidExceptionHandler,
+        UnauthorizedExceptionHandler,
+        UnauthenticatedExceptionHandler
     ]
+
 
 an_api = AnApi()
 app = Flask(__name__)
