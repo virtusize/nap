@@ -12,5 +12,8 @@ Use list notation, and following prefixes:
 
 ### NEXT RELEASE
 
+
+### 0.1.0
+
 - Initial release!
 
