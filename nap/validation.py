@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+from nap.exceptions import ModelInvalidException
+
 
 class ModelValidator(object):
     """
@@ -20,7 +22,7 @@ class ModelValidator(object):
 class ValueValidator(object):
     """
     ValueValidator validates just a single value from a model.
-    Example subclasses are NotNone, MaxLength, ValidEmail, etc...
+    Example subclasses are EnsureNotNone, EnsureMaxLength, ValidEmail, etc...
     """
     def validate(self, model_instance, field_name, value):
         raise NotImplementedError
@@ -40,7 +42,7 @@ class ValidationContext(object):
                 _errors.extend(errors)
 
         if _errors and raise_on_error:
-            raise ValueError(os.linesep.join(_errors))
+            raise ModelInvalidException(model_name=model_instance.__class__.__name__, errors=_errors)
 
         return ValidationResult(_errors)
 
@@ -58,9 +60,9 @@ class ValidationResult(object):
         return self.valid
 
     def __repr__(self):
-        return  'ValidationResult: %s ' % self.valid + os.linesep +\
-                'Errors:' + os.linesep +\
-                os.linesep.join(self.errors)
+        return 'ValidationResult: %s' % self.valid + os.linesep +\
+               'Errors:' + os.linesep +\
+               os.linesep.join(self.errors)
 
 
 class ValidationMetaClass(type):
@@ -80,5 +82,3 @@ class ValidationMixin(object):
             return self.__class__._validation_context.validate(self, raise_on_error=raise_on_error)
 
         return ValidationResult([])
-
-

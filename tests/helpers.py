@@ -8,9 +8,14 @@ If the tests do not need a full test environment incl. the database they can be
 regular unittest.TestCases
 """
 
+import testfixtures
 from nose import tools as nt
 
-from core.database import *
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from sa_nap import SAModel
+
 
 assert_equal = nt.assert_equal
 assert_equals = nt.assert_equals
@@ -35,14 +40,21 @@ assert_list_equal = nt.assert_list_equal
 assert_tuple_equal = nt.assert_tuple_equal
 assert_set_equal = nt.assert_set_equal
 assert_dict_equal = nt.assert_dict_equal
+compare = testfixtures.compare
 raises = nt.raises
+
+
+engine = create_engine('sqlite:///:memory:', echo=False)
+
+
+db_session = scoped_session(sessionmaker(bind=engine))
 
 
 def fixtures(*args, **kwargs):
     return FixturesContext(*args, **kwargs)
 
 
-def db(clean=False):
+def db(clean=True):
     return DbContext(clean=clean)
 
 
@@ -59,9 +71,9 @@ class DbContext(object):
 
     def __enter__(self):
         if self._clean:
-            DbModel.metadata.drop_all(engine)
+            SAModel.metadata.drop_all(engine)
 
-        DbModel.metadata.create_all(engine)
+        SAModel.metadata.create_all(engine)
 
     def __exit__(self, type, value, traceback):
         db_session.remove()
