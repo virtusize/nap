@@ -2,7 +2,7 @@
 
 from flask import Flask, g, request
 from flask_nap.api import Api, Debug, JsonDecoder, ApiMixin
-from flask_nap.view import ModelView
+from flask_nap.view import ModelView, route
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
 from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler
 from sa_nap.controller import SAModelController
@@ -29,11 +29,8 @@ class StoreController(SAModelController):
     model = Store
     session_factory = db_session
 
-
-class StoreView(ModelView):
-    controller = StoreController
-    filter_chain = [CamelizeFilter]
-    serializer = SAModelSerializer
+    def query_by_owner(self, owner_id):
+        return self.db_session.query(self.model).filter(Store.owner_id==owner_id).all()
 
 
 class UserController(SAModelController):
@@ -46,6 +43,16 @@ class UserView(ModelView):
     controller = UserController
     filter_chain = [ExcludeFilter(['password']), CamelizeFilter]
     serializer = SAModelSerializer
+
+
+class StoreView(ModelView):
+    controller = StoreController
+    filter_chain = [CamelizeFilter]
+    serializer = SAModelSerializer
+
+    @route(rule='/users/<int:owner_id>/stores/', methods=['GET'])
+    def index_by_owner(self, owner_id):
+        return self.controller.query_by_owner(owner_id), 200
 
 
 class ProductController(SAModelController):
