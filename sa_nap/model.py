@@ -15,13 +15,13 @@ class Field(Column):
     This is a extension for Column type that allows us to pass in a list of validator classes
     to validate against.
     Example:
-        name = Field(String, validate_constraints=True, validate_with=[EnsureNotNone])
+        name = Field(String, validate_with=[EnsureNotNone])
     """
     def __init__(self, *args, **kwargs):
 
         info = kwargs.get('info', {})
         info['_validator_list'] = kwargs.pop('validate_with', [])
-        info['_validate_constraints'] = kwargs.pop('validate_constraints', False)
+        info['_validate_constraints'] = kwargs.pop('validate_constraints', True)
         kwargs['info'] = info
 
         super(Field, self).__init__(*args, **kwargs)

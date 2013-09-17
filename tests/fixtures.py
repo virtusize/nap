@@ -74,16 +74,16 @@ class Products(DataSet):
 class User(SAModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
-    email = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty, EnsureEmail])
-    password = Field(String(255), validate_constraints=True, validate_with=[EnsureNotEmpty])
+    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
+    email = Field(String(255), validate_with=[EnsureNotEmpty, EnsureEmail])
+    password = Field(String(255), validate_with=[EnsureNotEmpty])
 
 
 class Store(SAModel):
 
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty])
-    owner_id = Field(Integer, ForeignKey('users.id'), nullable=False, validate_constraints=True)
+    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty])
+    owner_id = Field(Integer, ForeignKey('users.id'), nullable=False)
     active = Field(Boolean, default=True)
 
     owner = relationship(User, backref='stores')
@@ -91,9 +91,9 @@ class Store(SAModel):
 
 class Product(SAModel):
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty])
+    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty])
     store_id = Field(Integer, ForeignKey('stores.id'), nullable=False)
-    product_type_id = Field(Integer, validate_constraints=True, validate_with=[EnsureOneOf(ProductTypes._pluck())])
+    product_type_id = Field(Integer, validate_with=[EnsureOneOf(ProductTypes._pluck())])
 
     store = relationship(Store, backref='products')
 
