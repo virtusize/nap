@@ -13,6 +13,11 @@ Use list notation, and following prefixes:
 ### NEXT RELEASE
 
 
+### 0.1.1
+
+- Feature: Handling other exceptions by returning json responses (hs)
+
+
 ### 0.1.0
 
 - Initial release!
