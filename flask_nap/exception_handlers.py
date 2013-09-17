@@ -40,3 +40,21 @@ class ModelNotFoundExceptionHandler(NapExceptionHandler):
 class ModelInvalidExceptionHandler(NapExceptionHandler):
     exception = ModelInvalidException
     status_code = 422
+
+
+class HTTPExceptionHandler(NapExceptionHandler):
+    def __init__(self, app, api, code):
+        self.app = app
+        self.api = api
+        self.code = code
+        app.errorhandler(self.code)(self.handle_exception)
+
+    def handle_exception(self, error):
+        message = error.name if hasattr(error, 'name') else str(error)
+        dct = {'message': message, 'status_code': self.code}
+        return self.api.make_response(dct, self.code)
+
+    @classmethod
+    def register_on(cls, app, api):
+        for code in range(400, 503):
+            HTTPExceptionHandler(app, api, code)
