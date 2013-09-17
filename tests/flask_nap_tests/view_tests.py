@@ -122,7 +122,7 @@ def test_samodel_view_post():
     with db(), fixtures(Stores, fixture_loader=fixture_loader):
         c = app.test_client()
 
-        response = c.post('/api/v1/stores/', **with_json_data({'name': 'New Store', 'owner_id': Users.john.id}))
+        response = c.post('/api/v1/stores/', **with_json_data({'name': 'New Store', 'owner_id': Users.john.id, 'active': True}))
         assert_equal(response.status_code, 201)
 
         response = response.json
@@ -211,3 +211,17 @@ def test_authorized_samodel_view_get():
         assert_equal(response.status_code, 200)
         user = response.json
         assert_equal(user['name'], 'John')
+
+
+def test_custom_route():
+    with db(), fixtures(Users, Stores, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/users/%s/stores/' % Users.john.id)
+        assert_equal(response.status_code, 200)
+        stores = response.json
+        assert_equal(len(stores), 2)
+
+        response = c.get('/api/v1/users/%s/stores/' % Users.jane.id)
+        stores = response.json
+        assert_equal(len(stores), 1)

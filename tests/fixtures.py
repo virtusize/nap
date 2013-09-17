@@ -6,7 +6,7 @@ from fixture import DataSet
 from fixture import SQLAlchemyFixture, TrimmedNameStyle
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKey
-from sqlalchemy.types import Integer, String, Unicode
+from sqlalchemy.types import Integer, String, Unicode, Boolean
 
 from nap.model import Model, Storage
 from nap.validators import *
@@ -84,6 +84,7 @@ class Store(SAModel):
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(255), validate_constraints=True, validate_with=[EnsureMinLength(3), EnsureNotEmpty])
     owner_id = Field(Integer, ForeignKey('users.id'), nullable=False, validate_constraints=True)
+    active = Field(Boolean, default=True)
 
     owner = relationship(User, backref='stores')
 
