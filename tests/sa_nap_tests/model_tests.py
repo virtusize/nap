@@ -104,3 +104,31 @@ def test_validate_with():
     assert_is_none(sm.some_column)
     assert_false(sm.validate())
     assert_equal(len(sm.validate().errors), 1)
+
+
+def test_multiple_models_on_same_table():
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.schema import Column
+    from sqlalchemy.types import Integer, Unicode
+
+    Base = declarative_base()
+
+    class LegacyUser(Base):
+        __tablename__ = 'users'
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        name = Column(Unicode(255))
+        email = Column(Unicode(255))
+        password = Column(Unicode(255))
+
+    with db(), fixtures(Users, fixture_loader=fixture_loader):
+        john = db_session.query(User).get(Users.john.id)
+        legacy_john = db_session.query(LegacyUser).get(Users.john.id)
+
+        assert_is_not_none(john)
+        assert_is_not_none(legacy_john)
+
+        john_dct = john.__dict__
+        legacy_john_dct = john.__dict__
+        del legacy_john_dct['_sa_instance_state']
+
+        compare(john_dct, legacy_john_dct)
