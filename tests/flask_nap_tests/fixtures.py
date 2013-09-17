@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, g, request
-from flask_nap.api import Api, Debug, JsonDecoder, ApiMixin
+from flask_nap.api import Api, Debug, JsonRequestParser, ApiMixin
 from flask_nap.view import ModelView, route
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
 from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler
@@ -89,7 +89,7 @@ class AnApi(Api):
     mixins = [
         Authentication,
         Debug(print_request=False, print_response=False),
-        JsonDecoder
+        JsonRequestParser
     ]
     views = [
         ProductTypeView,

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import pprint
 from flask import Blueprint, request, g, make_response
-from flask.json import JSONEncoder
+from flask.json import JSONEncoder, JSONDecoder
+from nap.exceptions import NapException
 from nap.util import ensure_instance, Context
 
 
@@ -72,6 +73,23 @@ class Debug(ApiMixin):
         return response
 
 
-class JsonDecoder(ApiMixin):
+class InvalidJSONException(NapException):
+
+    def __init__(self, data):
+        super(InvalidJSONException, self).__init__(message='Mime-type is JSON, but no JSON object could be decoded.', data=data)
+
+
+class JsonRequestParser(ApiMixin):
+
+    decoder = JSONDecoder()
+
     def before(self):
-        g.ctx.input = request.get_json()
+        input = None
+
+        if request.mimetype == 'application/json' and request.content_length:
+            try:
+                input = self.decoder.decode(request.data)
+            except:
+                raise InvalidJSONException(request.data)
+
+        g.ctx.input = input

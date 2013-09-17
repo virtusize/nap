@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import g
+from flask.ext.nap.api import InvalidJSONException
 
 from nap.exceptions import UnsupportedMethodException, ModelNotFoundException, ModelInvalidException, UnauthenticatedException, UnauthorizedException
 
@@ -40,6 +41,11 @@ class ModelNotFoundExceptionHandler(NapExceptionHandler):
 class ModelInvalidExceptionHandler(NapExceptionHandler):
     exception = ModelInvalidException
     status_code = 422
+
+
+class InvalidJSONExceptionHandler(NapExceptionHandler):
+    exception = InvalidJSONException
+    status_code = 400
 
 
 class HTTPExceptionHandler(NapExceptionHandler):
