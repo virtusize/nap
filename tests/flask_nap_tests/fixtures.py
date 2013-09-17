@@ -4,7 +4,7 @@ from flask import Flask, g, request
 from flask_nap.api import Api, Debug, JsonDecoder, ApiMixin
 from flask_nap.view import ModelView, route
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
-from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler
+from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler
 from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 from tests.fixtures import ProductType, ProductTypes, Store, User, Product
@@ -109,3 +109,5 @@ class AnApi(Api):
 an_api = AnApi()
 app = Flask(__name__)
 app.register_blueprint(an_api)
+
+HTTPExceptionHandler.register_on(app, an_api)

@@ -56,3 +56,26 @@ def test_unauthorized():
         assert_equal(response['status_code'], 403)
         assert_equal(response['model_name'], 'User')
         assert_equal(response['message'], 'Unauthorized.')
+
+
+def test_not_found_exception():
+    c = app.test_client()
+    response = c.get('/api/v1/not-existent/1')
+
+    assert_equal(response.status_code, 404)
+
+    response = response.json
+    assert_equal(response['status_code'], 404)
+    assert_equal(response['message'], 'Not Found')
+
+
+def test_wrong_call_exception():
+    c = app.test_client()
+
+    response = c.post('/api/v1/stores/', **with_json_data({'not_existent': 'Something'}))
+
+    assert_equal(response.status_code, 500)
+
+    response = response.json
+    assert_equal(response['status_code'], 500)
+    assert_equal(response['message'], "u'not_existent' is an invalid keyword argument for Store")
