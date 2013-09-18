@@ -77,6 +77,7 @@ class Debug(ApiMixin):
 class JsonRequestParser(ApiMixin):
 
     decoder = JSONDecoder()
+    filter = UnderscoreFilter()
 
     def before(self):
         input = None
@@ -84,7 +85,7 @@ class JsonRequestParser(ApiMixin):
         if request.content_length:
             if request.mimetype == 'application/json':
                 try:
-                    input = UnderscoreFilter().filter(self.decoder.decode(request.data))
+                    input = self.filter.filter(self.decoder.decode(request.data))
                 except:
                     raise InvalidJSONException(request.data)
             else:
