@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from inflection import camelize
+from inflection import camelize, underscore
 
 
 class Filter(object):
@@ -17,7 +17,7 @@ class KeyFilter(Filter):
     def __init__(self, key_filter):
         self.key_filter = key_filter
 
-    def filter(self, dct, ctx):
+    def filter(self, dct, ctx=None):
         return {self.key_filter(k): v for (k, v) in dct.items()}
 
 
@@ -25,6 +25,12 @@ class CamelizeFilter(KeyFilter):
 
     def __init__(self, uppercase_first_letter=False):
         super(CamelizeFilter, self).__init__(lambda k: camelize(k, uppercase_first_letter))
+
+
+class UnderscoreFilter(KeyFilter):
+
+    def __init__(self):
+        super(UnderscoreFilter, self).__init__(lambda k: underscore(k))
 
 
 class ExcludeFilter(Filter):

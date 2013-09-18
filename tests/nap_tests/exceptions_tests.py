@@ -35,3 +35,13 @@ def test_unauthenticated_exception():
 def test_unauthorized_exception():
     ne = UnauthorizedException(model_name='User')
     compare(str(ne), u"{'message': 'Unauthorized.', 'model_name': 'User'}")
+
+
+def test_invalid_json_exception():
+    ne = InvalidJSONException(data={'some': 'value'})
+    compare(str(ne), u"{'message': 'Mime-type is JSON, but no JSON object could be decoded.', 'data': {'some': 'value'}}")
+
+
+def test_invalid_mimetype_exception():
+    ne = InvalidMimetypeException(mimetype='text/xml')
+    compare(str(ne), u"{'mimetype': 'text/xml', 'message': 'Mime-type has to be application/json.'}")

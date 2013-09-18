@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from flask.json import JSONEncoder
+
 from tests.helpers import *
 from tests.flask_nap_tests.helpers import *
 from tests.fixtures import Users, Stores, fixture_loader
@@ -79,3 +81,27 @@ def test_wrong_call_exception():
     response = response.json
     assert_equal(response['status_code'], 500)
     assert_equal(response['message'], "u'not_existent' is an invalid keyword argument for Store")
+
+
+def test_invalid_json_exception():
+    c = app.test_client()
+
+    response = c.post('/api/v1/stores/', data="really=wrong", content_type='application/json')
+
+    assert_equal(response.status_code, 400)
+
+    response = response.json
+    assert_equal(response['status_code'], 400)
+
+
+def test_invalid_mimetype_exception():
+    c = app.test_client()
+
+    data = JSONEncoder().encode({'valid': 'json'})
+    response = c.post('/api/v1/stores/', data=data, content_type='text/xml')
+    print response
+
+    assert_equal(response.status_code, 415)
+
+    response = response.json
+    assert_equal(response['status_code'], 415)

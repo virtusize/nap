@@ -2,7 +2,7 @@
 from flask import g
 from flask.ext.nap.api import InvalidJSONException
 
-from nap.exceptions import UnsupportedMethodException, ModelNotFoundException, ModelInvalidException, UnauthenticatedException, UnauthorizedException
+from nap.exceptions import UnsupportedMethodException, ModelNotFoundException, ModelInvalidException, UnauthenticatedException, UnauthorizedException, InvalidMimetypeException
 
 
 class NapExceptionHandler(object):
@@ -46,6 +46,11 @@ class ModelInvalidExceptionHandler(NapExceptionHandler):
 class InvalidJSONExceptionHandler(NapExceptionHandler):
     exception = InvalidJSONException
     status_code = 400
+
+
+class InvalidMimetypeExceptionHandler(NapExceptionHandler):
+    exception = InvalidMimetypeException
+    status_code = 415
 
 
 class HTTPExceptionHandler(NapExceptionHandler):

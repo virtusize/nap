@@ -2,7 +2,7 @@
 from flask import g
 
 from nap.util import Context
-from flask_nap.api import ApiMixin, Debug, JsonRequestParser, InvalidJSONException
+from flask_nap.api import ApiMixin, Debug, JsonRequestParser, InvalidJSONException, InvalidMimetypeException
 from tests.flask_nap_tests.fixtures import AnApi
 from tests.flask_nap_tests.helpers import app
 from tests.helpers import *
@@ -46,6 +46,7 @@ def test_json_request_parser_valid_json():
         compare(g.ctx.input, data)
 
 
+@raises(InvalidMimetypeException)
 def test_json_request_parser_valid_json_but_invalid_content_type():
 
     data = {'one': 1, 'two': '2', u'äåö': u'-.öäå'}
@@ -57,8 +58,6 @@ def test_json_request_parser_valid_json_but_invalid_content_type():
 
         mixin = JsonRequestParser()
         mixin.before()
-
-        assert_is_none(g.ctx.input)
 
 
 @raises(InvalidJSONException)
