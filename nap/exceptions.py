@@ -48,3 +48,16 @@ class UnauthorizedException(NapException):
 
     def __init__(self, model_name):
         super(UnauthorizedException, self).__init__(message='Unauthorized.', model_name=model_name)
+
+
+class InvalidJSONException(NapException):
+
+    def __init__(self, data):
+        super(InvalidJSONException, self).__init__(message='Mime-type is JSON, but no JSON object could be decoded.', data=data)
+
+
+class InvalidMimetypeException(NapException):
+
+    def __init__(self, mimetype):
+        super(InvalidMimetypeException, self).__init__(message='Mime-type has to be application/json.', mimetype=mimetype)
+

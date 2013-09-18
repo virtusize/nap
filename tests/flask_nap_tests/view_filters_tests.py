@@ -2,7 +2,7 @@
 
 from nap.authorization import Identity, Role, Guard
 from nap.util import Context
-from flask_nap.view_filters import Filter, CamelizeFilter, ExcludeFilter, ExcludeActionFilter, KeyFilter
+from flask_nap.view_filters import Filter, CamelizeFilter, ExcludeFilter, ExcludeActionFilter, KeyFilter, UnderscoreFilter
 
 from tests.helpers import *
 
@@ -43,6 +43,21 @@ def test_camelize_filter():
     assert_equal(result['name'], dct['name'])
     assert_equal(result['fullName'], dct['full_name'])
     assert_equal(result['favoriteStoreProductId'], dct['favorite_store_product_id'])
+
+
+def test_underscore_filter():
+
+    dct = {
+        'name': 'John',
+        'fullName': 'John Doe',
+        'favoriteStoreProductId': 123
+    }
+
+    result = UnderscoreFilter().filter(dct)
+
+    assert_equal(result['name'], dct['name'])
+    assert_equal(result['full_name'], dct['fullName'])
+    assert_equal(result['favorite_store_product_id'], dct['favoriteStoreProductId'])
 
 
 def test_exclude_filter():

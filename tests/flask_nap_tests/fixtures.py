@@ -4,7 +4,7 @@ from flask import Flask, g, request
 from flask_nap.api import Api, Debug, JsonRequestParser, ApiMixin
 from flask_nap.view import ModelView, route
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
-from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler
+from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler, InvalidJSONExceptionHandler, InvalidMimetypeExceptionHandler
 from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 from tests.fixtures import ProductType, ProductTypes, Store, User, Product
@@ -99,6 +99,8 @@ class AnApi(Api):
     ]
     exception_handlers = [
         UnsupportedMethodExceptionHandler,
+        InvalidJSONExceptionHandler,
+        InvalidMimetypeExceptionHandler,
         ModelNotFoundExceptionHandler,
         ModelInvalidExceptionHandler,
         UnauthorizedExceptionHandler,
