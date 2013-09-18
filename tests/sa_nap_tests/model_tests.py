@@ -5,7 +5,7 @@ from nap.validators import FieldValidator, EnsureNotNone
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.fixtures import Users, User, Store, fixture_loader
+from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, fixture_loader
 
 from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
@@ -132,3 +132,14 @@ def test_multiple_models_on_same_table():
         del legacy_john_dct['_sa_instance_state']
 
         compare(john_dct, legacy_john_dct)
+
+
+def test_model_associations_with_compound_private_key():
+    with db(), fixtures(Users, Stores, StoreMemberships, fixture_loader=fixture_loader):
+        john = db_session.query(User).get(Users.john.id)
+        johns_memberships = db_session.query(StoreMembership).filter(StoreMembership.user_id==Users.john.id).all()
+
+        compare(john.store_memberships, johns_memberships)
+
+        virtusize = db_session.query(Store).get(Stores.virtusize.id)
+        assert_equal(len(virtusize.store_memberships), 2)

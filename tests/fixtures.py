@@ -71,6 +71,25 @@ class Products(DataSet):
         product_type_id = ProductTypes.dress.id
 
 
+class StoreMemberships(DataSet):
+
+    class john_virtusize:
+        user = Users.john
+        store = Stores.virtusize
+
+    class john_asos:
+        user = Users.john
+        store = Stores.asos
+
+    class john_wesc:
+        user = Users.john
+        store = Stores.wesc
+
+    class jane_virtusize:
+        user = Users.jane
+        store = Stores.virtusize
+
+
 class User(SAModel):
 
     id = Field(Integer, primary_key=True)
@@ -100,6 +119,14 @@ class Product(SAModel):
     @property
     def product_type(self):
         return ProductTypes._get(self.product_type_id)
+
+
+class StoreMembership(SAModel):
+    user_id = Field(Integer, ForeignKey('users.id'), primary_key=True)
+    store_id = Field(Integer, ForeignKey('stores.id'), primary_key=True)
+
+    user = relationship(User, backref='store_memberships')
+    store = relationship(Store, backref='store_memberships')
 
 
 current_module = sys.modules[__name__]
