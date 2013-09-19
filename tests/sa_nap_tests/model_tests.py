@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sqlalchemy as sa
+from sqlalchemy.types import Integer, Unicode
+
 from nap.validators import FieldValidator, EnsureNotNone
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
@@ -109,7 +111,6 @@ def test_validate_with():
 def test_multiple_models_on_same_table():
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.schema import Column
-    from sqlalchemy.types import Integer, Unicode
 
     Base = declarative_base()
 
@@ -143,3 +144,12 @@ def test_model_associations_with_compound_private_key():
 
         virtusize = db_session.query(Store).get(Stores.virtusize.id)
         assert_equal(len(virtusize.store_memberships), 2)
+
+
+def test_model_with_custom_tablename():
+
+    class LegacyTableModel(SAModel):
+        __tablename__ = 'old_style_tablename'
+        id = Field(Integer, primary_key=True)
+
+    assert_equal(LegacyTableModel.__tablename__, 'old_style_tablename')
