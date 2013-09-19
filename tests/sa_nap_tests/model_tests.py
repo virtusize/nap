@@ -153,3 +153,19 @@ def test_model_with_custom_tablename():
         id = Field(Integer, primary_key=True)
 
     assert_equal(LegacyTableModel.__tablename__, 'old_style_tablename')
+
+
+def test_unique_validator():
+    with db():
+        user1 = User(name=u'Joe', email='valid@example.com', password='12345')
+        user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+
+        assert_true(user1.validate())
+        assert_true(user2.validate())
+
+        db_session.add(user1)
+        assert_true(user1.validate())
+        assert_false(user2.validate())
+
+        db_session.delete(user1)
+        assert_true(user2.validate())

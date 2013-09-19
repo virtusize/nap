@@ -10,6 +10,10 @@ from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
 
 
+class NoSessionBound(Exception):
+    pass
+
+
 class Field(Column):
     """
     This is a extension for Column type that allows us to pass in a list of validator classes
@@ -39,6 +43,12 @@ class SAModel(BaseModel):
         for key, value in attributes.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+
+    @classmethod
+    def get_session(cls):
+        if hasattr(cls, '__db_session__'):
+            return cls.__db_session__
+        raise NoSessionBound('No session bound to SAModel, bind it with SAModel.__db_session__ = db_session')
 
 SAModel = declarative_base(cls=SAModel)
 

@@ -12,7 +12,9 @@ from nap.model import Model, Storage
 from nap.validators import *
 from sa_nap import SAModel
 from sa_nap.model import Field
-from tests.helpers import engine
+from tests.helpers import engine, db_session
+
+SAModel.__db_session__ = db_session
 
 
 class ProductType(Model):
@@ -94,7 +96,7 @@ class User(SAModel):
 
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty()])
-    email = Field(String(255), validate_with=[EnsureNotEmpty, EnsureEmail])
+    email = Field(String(255), unique=True, validate_with=[EnsureNotEmpty, EnsureEmail])
     password = Field(String(255), validate_with=[EnsureNotEmpty])
 
 
