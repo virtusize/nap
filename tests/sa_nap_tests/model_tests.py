@@ -2,12 +2,13 @@
 
 import sqlalchemy as sa
 from sqlalchemy.types import Integer, Unicode
+from sqlalchemy.exc import IntegrityError
 
 from nap.validators import FieldValidator, EnsureNotNone
-from sa_nap.model import Field, SAModelSerializer
+from sa_nap.model import Field, SAModelSerializer, NoSessionBound
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, fixture_loader
+from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Product, ProductTypes, Products, ProductTypeDBModel, fixture_loader
 
 from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
@@ -60,7 +61,7 @@ def test_validate_before_insert():
 
 
 @raises(ModelInvalidException)
-def test_validate_before_insert():
+def test_validate_before_update():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         john = db_session.query(User).get(Users.john.id)
         john.email = None
@@ -169,3 +170,60 @@ def test_unique_validator():
 
         db_session.delete(user1)
         assert_true(user2.validate())
+
+
+@raises(ModelInvalidException)
+def test_unique_validator_by_db_insert():
+    with db():
+        user1 = User(name=u'Joe', email='valid@example.com', password='12345')
+        user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+
+        db_session.add(user1)
+        db_session.commit()
+
+        db_session.add(user2)
+        db_session.commit()
+
+
+@raises(IntegrityError)
+def test_unique_validator_by_db_insert_same_commit():
+    with db():
+        user1 = User(name=u'Joe', email='valid@example.com', password='12345')
+        user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+
+        db_session.add(user1)
+        db_session.add(user2)
+        db_session.commit()
+
+
+def test_samodel_to_model_relation():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        p = db_session.query(Product).get(Products.dress.id)
+        compare(p.product_type, ProductTypes.dress)
+
+
+def test_samodel_model_serialized():
+    with db():
+        dress = ProductTypes.dress
+        pt = ProductTypeDBModel(product_type=dress)
+        db_session.add(pt)
+        db_session.commit()
+
+        db_session.refresh(pt)
+        compare(pt.product_type, dress)
+
+        pt.product_type = ProductTypes.shirt
+        db_session.commit()
+
+        db_session.refresh(pt)
+        compare(pt.product_type, ProductTypes.shirt)
+        
+
+@raises(NoSessionBound)
+def test_missing_db_session():
+    class MissingDBSessionModel(SAModel):
+        id = Field(Integer, primary_key=True, autoincrement=True)
+        __db_session__ = None
+
+    assert_is_none(MissingDBSessionModel.__db_session__)
+    MissingDBSessionModel.get_session()

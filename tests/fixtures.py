@@ -131,5 +131,32 @@ class StoreMembership(SAModel):
     store = relationship(Store, backref='store_memberships')
 
 
+from sqlalchemy.types import TypeDecorator, Text
+from flask.json import JSONEncoder, JSONDecoder
+from nap.model import ModelSerializer
+
+
+class ModelType(TypeDecorator):
+    impl = Text()
+    serializer = ModelSerializer()
+
+    def __init__(self, model_class):
+        self.model_class = model_class
+
+    def process_bind_param(self, value, dialect):
+        return JSONEncoder().encode(self.serializer.serialize(value))
+
+    def process_result_value(self, value, dialect):
+        return ProductType(**JSONDecoder().decode(value))
+
+    def copy(self):
+        return ModelType(self.impl.length)
+
+
+class ProductTypeDBModel(SAModel):
+    id = Field(Integer, primary_key=True)
+    product_type = Field(ModelType(ProductType))
+
+
 current_module = sys.modules[__name__]
 fixture_loader = SQLAlchemyFixture(env=current_module, style=TrimmedNameStyle(suffix='s'), engine=engine)

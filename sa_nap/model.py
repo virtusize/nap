@@ -46,7 +46,7 @@ class SAModel(BaseModel):
 
     @classmethod
     def get_session(cls):
-        if hasattr(cls, '__db_session__'):
+        if hasattr(cls, '__db_session__') and cls.__db_session__:
             return cls.__db_session__
         raise NoSessionBound('No session bound to SAModel, bind it with SAModel.__db_session__ = db_session')
 
