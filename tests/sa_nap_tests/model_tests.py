@@ -8,7 +8,7 @@ from nap.validators import FieldValidator, EnsureNotNone
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Products, Product, ProductTypes, ProductTypeDBModel, fixture_loader
+from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Products, Product, ProductTypes, fixture_loader
 
 from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
