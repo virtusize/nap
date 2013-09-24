@@ -187,6 +187,7 @@ def test_unique_validator_without_constraint_and_multiple_models_already_in_db()
 
 
 @raises(ModelInvalidException)
+def test_unique_validator_by_db_insert():
     with db():
         user1 = User(name=u'Joe', email='valid@example.com', password='12345')
         user2 = User(name=u'Jan', email='valid@example.com', password='12345')
@@ -195,6 +196,7 @@ def test_unique_validator_without_constraint_and_multiple_models_already_in_db()
         db_session.commit()
 
         db_session.add(user2)
+        db_session.commit()
 
 
 @raises(IntegrityError)
@@ -202,6 +204,7 @@ def test_unique_validator_by_db_insert_same_commit():
     with db():
         user1 = User(name=u'Joe', email='valid@example.com', password='12345')
         user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+
         db_session.add(user1)
         db_session.add(user2)
         db_session.commit()
