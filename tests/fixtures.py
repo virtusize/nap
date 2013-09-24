@@ -12,6 +12,7 @@ from nap.model import Model, Storage
 from nap.validators import *
 from sa_nap import SAModel
 from sa_nap.model import Field
+from sa_nap.validators import EnsureUnique
 from tests.helpers import engine, db_session
 
 SAModel.__db_session__ = db_session
@@ -112,7 +113,7 @@ class Store(SAModel):
 
 class Product(SAModel):
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty])
+    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty, EnsureUnique])
     store_id = Field(Integer, ForeignKey('stores.id'), nullable=False)
     product_type_id = Field(Integer, validate_with=[EnsureOneOf(ProductTypes._pluck())])
 

@@ -2,12 +2,13 @@
 
 import sqlalchemy as sa
 from sqlalchemy.types import Integer, Unicode
+from sqlalchemy.exc import IntegrityError
 
 from nap.validators import FieldValidator, EnsureNotNone
 from sa_nap.model import Field, SAModelSerializer
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, fixture_loader
+from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Products, Product, ProductTypes, ProductTypeDBModel, fixture_loader
 
 from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
@@ -169,3 +170,38 @@ def test_unique_validator():
 
         db_session.delete(user1)
         assert_true(user2.validate())
+
+
+@raises(ModelInvalidException)
+def test_unique_validator_without_constraint_and_multiple_models_already_in_db():
+    with db():
+        product1 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        product2 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product1)
+        db_session.add(product2)
+        db_session.commit()
+
+        product3 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product3)
+        db_session.commit()
+
+
+@raises(ModelInvalidException)
+    with db():
+        user1 = User(name=u'Joe', email='valid@example.com', password='12345')
+        user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+
+        db_session.add(user1)
+        db_session.commit()
+
+        db_session.add(user2)
+
+
+@raises(IntegrityError)
+def test_unique_validator_by_db_insert_same_commit():
+    with db():
+        user1 = User(name=u'Joe', email='valid@example.com', password='12345')
+        user2 = User(name=u'Jan', email='valid@example.com', password='12345')
+        db_session.add(user1)
+        db_session.add(user2)
+        db_session.commit()
