@@ -173,6 +173,34 @@ def test_unique_validator():
 
 
 @raises(ModelInvalidException)
+def test_unique_validator_without_constraint_and_multiple_models_already_in_db():
+    with db():
+        product1 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        product2 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product1)
+        db_session.add(product2)
+        db_session.commit()
+
+        product3 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product3)
+        db_session.commit()
+
+
+@raises(ModelInvalidException)
+def test_unique_validator_without_constraint_and_multiple_models_already_in_db():
+    with db():
+        product1 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        product2 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product1)
+        db_session.add(product2)
+        db_session.commit()
+
+        product3 = Product(name=u'Garment', store_id=Stores.virtusize.id, product_type_id=ProductTypes.shirt.id)
+        db_session.add(product3)
+        db_session.commit()
+
+
+@raises(ModelInvalidException)
 def test_unique_validator_by_db_insert():
     with db():
         user1 = User(name=u'Joe', email='valid@example.com', password='12345')
@@ -217,7 +245,7 @@ def test_samodel_model_serialized():
 
         db_session.refresh(pt)
         compare(pt.product_type, ProductTypes.shirt)
-        
+
 
 @raises(NoSessionBound)
 def test_missing_db_session():
