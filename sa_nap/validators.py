@@ -20,7 +20,7 @@ class EnsureUnique(ValueValidator):
         except MultipleResultsFound:
             pass
 
-        return ['Field {field} must be unique {value} already exists.'.format(field=field_name, value=value)]
+        return ['Field "{field}" must be unique. "{value}" already exists.'.format(field=field_name, value=value)]
 
 
 class SQLConstraintsValidator(ValueValidator):

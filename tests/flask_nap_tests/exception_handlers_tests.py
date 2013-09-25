@@ -71,7 +71,7 @@ def test_not_found_exception():
     assert_equal(response['message'], 'Not Found')
 
 
-def test_wrong_call_exception():
+def test_http_exception():
     c = app.test_client()
 
     response = c.post('/api/v1/stores/', **with_json_data({'not_existent': 'Something'}))
@@ -99,7 +99,6 @@ def test_invalid_mimetype_exception():
 
     data = JSONEncoder().encode({'valid': 'json'})
     response = c.post('/api/v1/stores/', data=data, content_type='text/xml')
-    print response
 
     assert_equal(response.status_code, 415)
 

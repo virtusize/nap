@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nap.exceptions import ModelNotFoundException
+from nap.exceptions import ModelNotFoundException, ModelInvalidException
 from nap.authorization import Guard
 from sa_nap.controller import SAModelController
 from tests.fixtures import Users, User, Stores, Store, Products, Product, fixture_loader
@@ -47,3 +47,11 @@ def test_controller_delete():
 
         c.delete(Users.john.id)
         c.read(Users.john.id)
+
+
+@raises(ModelInvalidException)
+def test_unique_validator_by_db_insert_same_commit():
+    with db():
+        c = UserController()
+        c.create({'name': u'Joe', 'email': 'valid@example.com', 'password': '123456'})
+        c.create({'name': u'Other Joe', 'email': 'valid@example.com', 'password': '123456'})
