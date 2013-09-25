@@ -11,7 +11,8 @@ from sqlalchemy.types import Integer, String, Unicode, Boolean
 from nap.model import Model, Storage
 from nap.validators import *
 from sa_nap import SAModel
-from sa_nap.model import Field
+from sa_nap.model import Field, ModelType
+from sa_nap.validators import EnsureUnique
 from tests.helpers import engine, db_session
 
 SAModel.__db_session__ = db_session
@@ -112,7 +113,7 @@ class Store(SAModel):
 
 class Product(SAModel):
     id = Field(Integer, primary_key=True)
-    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty])
+    name = Field(Unicode(255), validate_with=[EnsureMinLength(3), EnsureNotEmpty, EnsureUnique])
     store_id = Field(Integer, ForeignKey('stores.id'), nullable=False)
     product_type_id = Field(Integer, validate_with=[EnsureOneOf(ProductTypes._pluck())])
 
@@ -129,28 +130,6 @@ class StoreMembership(SAModel):
 
     user = relationship(User, backref='store_memberships')
     store = relationship(Store, backref='store_memberships')
-
-
-from sqlalchemy.types import TypeDecorator, Text
-from flask.json import JSONEncoder, JSONDecoder
-from nap.model import ModelSerializer
-
-
-class ModelType(TypeDecorator):
-    impl = Text()
-    serializer = ModelSerializer()
-
-    def __init__(self, model_class):
-        self.model_class = model_class
-
-    def process_bind_param(self, value, dialect):
-        return JSONEncoder().encode(self.serializer.serialize(value))
-
-    def process_result_value(self, value, dialect):
-        return ProductType(**JSONDecoder().decode(value))
-
-    def copy(self):
-        return ModelType(self.impl.length)
 
 
 class ProductTypeDBModel(SAModel):
