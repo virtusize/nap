@@ -11,7 +11,7 @@ from sqlalchemy.types import Integer, String, Unicode, Boolean
 from nap.model import Model, Storage
 from nap.validators import *
 from sa_nap import SAModel
-from sa_nap.model import Field
+from sa_nap.model import Field, ModelType
 from sa_nap.validators import EnsureUnique
 from tests.helpers import engine, db_session
 
@@ -130,6 +130,11 @@ class StoreMembership(SAModel):
 
     user = relationship(User, backref='store_memberships')
     store = relationship(Store, backref='store_memberships')
+
+
+class ProductTypeDBModel(SAModel):
+    id = Field(Integer, primary_key=True)
+    product_type = Field(ModelType(ProductType))
 
 
 current_module = sys.modules[__name__]

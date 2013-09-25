@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from flask.json import JSONEncoder, JSONDecoder
+
 from inflection import underscore, pluralize
 from sqlalchemy import event, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import mapper
-from nap.model import BaseModel, BaseSerializer
+from sqlalchemy.types import TypeDecorator, Text
+from nap.model import BaseModel, BaseSerializer, ModelSerializer
 from nap.validation import ValidationContext, ValidationMixin
 from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
@@ -46,7 +49,7 @@ class SAModel(BaseModel):
 
     @classmethod
     def get_session(cls):
-        if hasattr(cls, '__db_session__'):
+        if hasattr(cls, '__db_session__') and cls.__db_session__:
             return cls.__db_session__
         raise NoSessionBound('No session bound to SAModel, bind it with SAModel.__db_session__ = db_session')
 
@@ -91,3 +94,18 @@ class SAModelSerializer(BaseSerializer):
 
     def serialize(self, subject):
         return {c.name: getattr(subject, c.name) for c in subject.__table__.columns}
+
+
+class ModelType(TypeDecorator):
+    impl = Text
+    serializer = ModelSerializer()
+
+    def __init__(self, model_class):
+        self.model_class = model_class
+        super(ModelType, self).__init__()
+
+    def process_bind_param(self, value, dialect):
+        return JSONEncoder().encode(self.serializer.serialize(value))
+
+    def process_result_value(self, value, dialect):
+        return self.model_class(**JSONDecoder().decode(value))
