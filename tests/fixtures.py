@@ -8,28 +8,28 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import Integer, String, Unicode, Boolean
 
-from nap.model import Model, Storage
+from nap.model import Storage
 from nap.validators import *
 from sa_nap import SAModel
-from sa_nap.model import Field, ModelType
+from sa_nap.model import Field, ModelJSON, FieldModel
 from sa_nap.validators import EnsureUnique
 from tests.helpers import engine, db_session
 
 SAModel.__db_session__ = db_session
 
 
-class ProductType(Model):
+class ProductType(FieldModel):
 
     _validate_with = [
         FieldValidator('id', EnsureNotEmpty, EnsureInt),
-        FieldValidator('name', EnsureNotEmpty, Unicode)
+        FieldValidator('name', EnsureNotEmpty, EnsureUnicode)
     ]
 
 
 class ProductTypes(Storage):
-    dress = ProductType(id=1, name='dress')
-    shirt = ProductType(id=2, name='shirt')
-    pants = ProductType(id=3, name='pants')
+    dress = ProductType(id=1, name=u'dress')
+    shirt = ProductType(id=2, name=u'shirt')
+    pants = ProductType(id=3, name=u'pants')
 
 
 class Users(DataSet):
@@ -134,7 +134,7 @@ class StoreMembership(SAModel):
 
 class ProductTypeDBModel(SAModel):
     id = Field(Integer, primary_key=True)
-    product_type = Field(ModelType(ProductType))
+    product_type = Field(ModelJSON(ProductType), validate_with=[EnsureValidModel(ProductType)])
 
 
 current_module = sys.modules[__name__]

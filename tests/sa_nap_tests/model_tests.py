@@ -5,10 +5,10 @@ from sqlalchemy.types import Integer, Unicode
 from sqlalchemy.exc import IntegrityError
 
 from nap.validators import FieldValidator, EnsureNotNone
-from sa_nap.model import Field, SAModelSerializer, NoSessionBound
+from sa_nap.model import Field, SAModelSerializer, NoSessionBound, ModelJSON
 from sa_nap.validators import SQLConstraintsValidator
 
-from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Product, ProductTypes, Products, ProductTypeDBModel, fixture_loader
+from tests.fixtures import Users, User, Store, Stores, StoreMemberships, StoreMembership, Product, ProductTypes, ProductType, Products, ProductTypeDBModel, fixture_loader
 
 from nap.exceptions import ModelInvalidException
 from nap.validation import ValidationResult
@@ -230,10 +230,25 @@ def test_samodel_to_model_relation():
         compare(p.product_type, ProductTypes.dress)
 
 
+def test_model_json_type_decorator():
+    mj = ModelJSON(ProductType)
+    dog_collar = ProductType(id=123, name=u'Dog cöllår', awesome=True)
+
+    serialized = mj.process_bind_param(dog_collar, None)
+    compare(serialized, '{"awesome": true, "name": "Dog c\\u00f6ll\\u00e5r", "id": 123}')
+
+    deserialized = mj.process_result_value(serialized, None)
+    assert_is_instance(deserialized, ProductType)
+    compare(deserialized, dog_collar)
+    assert_equal(deserialized.name, u'Dog cöllår')
+    assert_equal(deserialized.awesome, True)
+
+
 def test_samodel_model_serialized():
     with db():
         dress = ProductTypes.dress
-        pt = ProductTypeDBModel(product_type=dress)
+        pt = ProductTypeDBModel()
+        pt.product_type = dress
         db_session.add(pt)
         db_session.commit()
 
@@ -245,6 +260,38 @@ def test_samodel_model_serialized():
 
         db_session.refresh(pt)
         compare(pt.product_type, ProductTypes.shirt)
+
+
+def test_samodel_model_serialized_mutable():
+    with db():
+        mutable_type = ProductType(id=100, name=u'Version 1')
+        pt = ProductTypeDBModel()
+        pt.product_type = mutable_type
+        db_session.add(pt)
+        db_session.commit()
+
+        db_session.refresh(pt)
+        compare(pt.product_type, mutable_type)
+
+        pt.product_type.name = u'Version 2'
+
+        assert_equal(pt.product_type.name, u'Version 2')
+        db_session.commit()
+
+        db_session.refresh(pt)
+        assert_equal(pt.product_type.name, u'Version 2')
+
+
+@raises(ModelInvalidException)
+def test_samodel_model_serialized_mutable_validation():
+    with db():
+        mutable_type = ProductType(id=100)
+        assert_false(mutable_type.validate())
+
+        pt = ProductTypeDBModel()
+        pt.product_type = mutable_type
+        db_session.add(pt)
+        db_session.commit()
 
 
 @raises(NoSessionBound)

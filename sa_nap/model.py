@@ -5,9 +5,10 @@ from flask.json import JSONEncoder, JSONDecoder
 from inflection import underscore, pluralize
 from sqlalchemy import event, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import mapper
 from sqlalchemy.types import TypeDecorator, Text
-from nap.model import BaseModel, BaseSerializer, ModelSerializer
+from nap.model import BaseModel, Model, BaseSerializer, ModelSerializer
 from nap.validation import ValidationContext, ValidationMixin
 from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
@@ -96,16 +97,33 @@ class SAModelSerializer(BaseSerializer):
         return {c.name: getattr(subject, c.name) for c in subject.__table__.columns}
 
 
-class ModelType(TypeDecorator):
+class ModelJSON(TypeDecorator):
     impl = Text
     serializer = ModelSerializer()
 
     def __init__(self, model_class):
+        super(ModelJSON, self).__init__()
         self.model_class = model_class
-        super(ModelType, self).__init__()
 
     def process_bind_param(self, value, dialect):
-        return JSONEncoder().encode(self.serializer.serialize(value))
+        if value is not None:
+            value = JSONEncoder().encode(self.serializer.serialize(value))
+        return value
 
     def process_result_value(self, value, dialect):
-        return self.model_class(**JSONDecoder().decode(value))
+        if value is not None:
+            value = self.model_class(**JSONDecoder().decode(value))
+        return value
+
+
+class FieldModel(Model, Mutable):
+    """ Mutable base class """
+    @classmethod
+    def coerce(cls, key, value):
+        return value
+
+    def __setattr__(self, name, value):
+        Model.__setattr__(self, name, value)
+        self.changed()
+
+FieldModel.associate_with(ModelJSON)
