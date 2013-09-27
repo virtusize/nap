@@ -16,11 +16,12 @@ setup(
 
     install_requires=[
         'coverage',
-        'flask',
+        'dogpile.cache=0.5.0',
+        'flask==0.10.1',
         'fixture',
         'inflection',
         'nose',
-        'sqlalchemy',
+        'sqlalchemy==0.8.2',
         'testfixtures',
     ]
 )
