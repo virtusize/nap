@@ -12,6 +12,8 @@ Use list notation, and following prefixes:
 
 ### NEXT RELEASE
 
+- Feature: Now empty results get handled by authorization. For possible improvements see Github Issues. (hs)
+
 
 ### 0.1.1
 

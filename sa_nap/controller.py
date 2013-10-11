@@ -6,7 +6,7 @@ from nap.controller import BaseController
 class SAModelController(BaseController):
 
     def index(self, ctx=None):
-        return self.authorize(ctx, 'read', self.fetch_all())
+        return self.authorize(ctx, 'index', self.fetch_all())
 
     def read(self, id, ctx=None):
         return self.authorize(ctx, 'read', self.fetch_model(id))

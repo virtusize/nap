@@ -94,7 +94,10 @@ def subject_alias(subject):
     elif isinstance(subject, type):
         return underscore(subject.__name__)
     elif isinstance(subject, list) and all(type(item) == type(subject[0]) for item in subject):
-        return underscore(type(subject[0]).__name__)
+        if len(subject) > 0:
+            return underscore(type(subject[0]).__name__)
+        else:
+            return '_empty'
     else:
         return underscore(type(subject).__name__)
 
@@ -115,7 +118,7 @@ class Guard(object):
         for item in subjects:
             results.append(self._authorize(item, identity, key))
 
-        if len(results) > 0 and all(results):
+        if all(results):
             return True
 
         return False
