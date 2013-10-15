@@ -68,6 +68,7 @@ class ProductView(ModelView):
 
 class Roles(object):
     guest = Role()
+    guest.grant(ControllerActions.index, User)
     guest.grant(ControllerActions.read, User)
 
 

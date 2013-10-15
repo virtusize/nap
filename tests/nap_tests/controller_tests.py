@@ -187,7 +187,7 @@ def test_model_guard_controller_read_missing_identity():
 
 def test_model_guard_controller_index():
     role = Role()
-    role.grant('read', SomeModel)
+    role.grant('index', SomeModel)
     identity = Identity([role])
     ctx = Context()
     ctx.identity = identity
