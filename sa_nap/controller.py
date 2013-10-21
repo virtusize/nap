@@ -30,6 +30,9 @@ class SAModelController(BaseController):
         self.db_session.commit()
         return model
 
+    def query(self, query, ctx=None):
+        return self.authorize(ctx, 'query', self.filter_all(query))
+
     @property
     def db_session(self):
         return self.session_factory()
@@ -44,3 +47,6 @@ class SAModelController(BaseController):
 
     def fetch_all(self):
         return self.db_session.query(self.model).all()
+
+    def filter_all(self, filter_dict):
+        return self.db_session.query(self.model).filter_by(**filter_dict).all()

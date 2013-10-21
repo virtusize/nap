@@ -21,6 +21,7 @@ setup(
         'fixture',
         'inflection',
         'nose',
+        'requests',
         'sqlalchemy==0.8.2',
         'testfixtures'
     ]

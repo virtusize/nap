@@ -2,6 +2,7 @@
 from flask import g
 from flask.ext.nap.api import InvalidJSONException
 
+from flask_nap.view_filters import CamelizeFilter
 from nap.exceptions import UnsupportedMethodException, ModelNotFoundException, ModelInvalidException, UnauthenticatedException, UnauthorizedException, InvalidMimetypeException
 
 
@@ -14,6 +15,7 @@ class NapExceptionHandler(object):
     def handle_exception(self, error):
         dct = error.to_dict()
         dct['status_code'] = self.status_code
+        dct = CamelizeFilter().filter(dct)
 
         return self.api.make_response(dct, self.status_code)
 
@@ -63,6 +65,8 @@ class HTTPExceptionHandler(NapExceptionHandler):
     def handle_exception(self, error):
         message = error.name if hasattr(error, 'name') else str(error)
         dct = {'message': message, 'status_code': self.code}
+        dct = CamelizeFilter().filter(dct)
+
         return self.api.make_response(dct, self.code)
 
     @classmethod

@@ -86,7 +86,6 @@ class CachingQuery(Query):
         """Invalidate the cache value represented by this Query."""
 
         dogpile_region, cache_key = self._get_cache_plus_key()
-        print '########################'+cache_key
         dogpile_region.delete(cache_key)
 
     def get_value(self, merge=True, createfunc=None,
