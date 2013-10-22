@@ -2,7 +2,8 @@
 from flask import g
 
 from nap.util import Context
-from flask_nap.api import ApiMixin, Debug, JsonRequestParser, InvalidJSONException, InvalidMimetypeException
+from flask_nap.view import BaseView
+from flask_nap.api import Api, ApiMixin, Debug, JsonRequestParser, InvalidJSONException, InvalidMimetypeException
 from tests.flask_nap_tests.fixtures import AnApi
 from tests.flask_nap_tests.helpers import app
 from tests.helpers import *
@@ -18,6 +19,24 @@ def test_api_init():
 def test_api_mixin():
     mixin = ApiMixin()
     mixin.before()
+
+
+def test_view_for_endpoint():
+    class EndpointView(BaseView):
+        endpoint_prefix = 'an_endpoint'
+
+    class EndpointApi(Api):
+        name = 'endpoint_api'
+        prefix = '/endpoint-api'
+        version = 1
+        mixins = []
+        exception_handlers = []
+        views = [EndpointView]
+
+    ea = EndpointApi()
+
+    assert_is_instance(ea.view_for_endpoint('an_endpoint'), EndpointView)
+    assert_equal(ea.view_for_endpoint('an_endpoint').endpoint_prefix, 'an_endpoint')
 
 
 def test_debug_mixin():

@@ -35,6 +35,13 @@ class Api(Blueprint):
     def setup_ctx(self):
         g.ctx = Context()
 
+    def view_for_endpoint(self, endpoint):
+        for view in self.views:
+            if view.endpoint_prefix == endpoint:
+                return view
+
+        return None
+
 
 class ApiMixin(object):
 

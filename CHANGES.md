@@ -12,6 +12,7 @@ Use list notation, and following prefixes:
 
 ### NEXT RELEASE
 
+- Feature: Added a method to find a view of the Api by endpoint prefix. (hs)
 - Feature: Added blinker signals to SAModelController for create, update and delete actions. (hs)
 - Feature: Now empty results get handled by authorization. For possible improvements see Github Issues. (hs)
 - Feature: Added in process nap client and http client libraries. (hs)
