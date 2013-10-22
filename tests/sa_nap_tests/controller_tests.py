@@ -155,3 +155,40 @@ def test_empty_list_index_permission():
         c.delete(1, ctx)
 
         compare(c.index(ctx), [])
+
+
+def test_signals():
+    with db(), fixtures(Stores, fixture_loader=fixture_loader):
+        sc = StoreController()
+
+        def created(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Created Store')
+
+        sc.created.connect(created)
+
+        def updated(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Updated Store')
+
+        sc.updated.connect(updated)
+
+        store = sc.create({'name': u'Created Store', 'owner_id': 1})
+        sc.update(store.id, {'name': u'Updated Store'})
+
+        def deleted(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.id, store.id)
+
+        sc.deleted.connect(deleted)
+
+        sc.delete(store.id)
+
+        uc = UserController()
+
+        def user_created(sender):
+            assert_is_instance(sender, User)
+            assert_equal(sender.name, 'Created User')
+
+        uc.created.connect(user_created)
+        uc.create({'name': u'Created User', 'email': 'created-user@example.com', 'password': '123456'})

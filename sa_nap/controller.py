@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 from nap.exceptions import ModelNotFoundException
 from nap.controller import BaseController
+from blinker import Namespace
+
+
+namespace = Namespace()
 
 
 class SAModelController(BaseController):
+
+    def __init__(self):
+        self.created = namespace.signal(self.model_name + '-created')
+        self.updated = namespace.signal(self.model_name + '-updated')
+        self.deleted = namespace.signal(self.model_name + '-deleted')
 
     def index(self, ctx=None):
         return self.authorize(ctx, 'index', self.fetch_all())
@@ -16,18 +25,21 @@ class SAModelController(BaseController):
         self.authorize(ctx, 'create', model)
         self.db_session.add(model)
         self.db_session.commit()
+        self.created.send(model)
         return model
 
     def update(self, id, attributes, ctx=None):
         model = self.authorize(ctx, 'update', self.fetch_model(id))
         model.update_attributes(attributes)
         self.db_session.commit()
+        self.updated.send(model)
         return model
 
     def delete(self, id, ctx=None):
         model = self.authorize(ctx, 'delete', self.fetch_model(id))
         self.db_session.delete(model)
         self.db_session.commit()
+        self.deleted.send(model)
         return model
 
     def query(self, query, ctx=None):
