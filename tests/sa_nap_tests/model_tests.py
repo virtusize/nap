@@ -44,6 +44,7 @@ def test_sql_constraints_validator():
         (Field(sa.UnicodeText(10)), u'_' * 11, False),
         (Field(sa.UnicodeText(10)), '', False),
         (Field(sa.Integer, nullable=False), None, False),
+        (Field(sa.Integer, nullable=False, default=0), None, True),
         (Field(sa.Integer, nullable=False), 0, True),
         (Field(sa.Integer, nullable=False), 1, True),
     ]

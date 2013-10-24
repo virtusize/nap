@@ -21,24 +21,6 @@ def test_api_mixin():
     mixin.before()
 
 
-def test_view_for_endpoint():
-    class EndpointView(BaseView):
-        endpoint_prefix = 'an_endpoint'
-
-    class EndpointApi(Api):
-        name = 'endpoint_api'
-        prefix = '/endpoint-api'
-        version = 1
-        mixins = []
-        exception_handlers = []
-        views = [EndpointView]
-
-    ea = EndpointApi()
-
-    assert_is_instance(ea.view_for_endpoint('an_endpoint'), EndpointView)
-    assert_equal(ea.view_for_endpoint('an_endpoint').endpoint_prefix, 'an_endpoint')
-
-
 def test_debug_mixin():
     with app.test_request_context('/'):
         assert_is_none(g.get('debug'))

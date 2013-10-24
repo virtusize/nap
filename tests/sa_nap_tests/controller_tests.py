@@ -157,6 +157,9 @@ def test_empty_list_index_permission():
         compare(c.index(ctx), [])
 
 
+from blinker import signal
+
+
 def test_signals():
     with db(), fixtures(Stores, fixture_loader=fixture_loader):
         sc = StoreController()
@@ -166,6 +169,13 @@ def test_signals():
             assert_equal(sender.name, 'Created Store')
 
         sc.created.connect(created)
+
+        sig = signal('resource-store-created')
+
+        @sig.connect
+        def decorated_created(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Created Store')
 
         def updated(sender):
             assert_is_instance(sender, Store)

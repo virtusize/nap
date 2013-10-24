@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from nap.util import ensure_instance, Context
+from nap.util import ensure_instance, Context, encode_json, decode_json
 from tests.helpers import *
 
 
@@ -40,3 +40,14 @@ def test_ctx():
     assert_true('something' in ctx)
 
     compare(list(ctx), ctx.__dict__.keys())
+
+
+def test_json():
+    s = '[0, true, "False"]'
+    compare(s, encode_json([0, True, 'False']))
+    compare(s, encode_json(decode_json(s)))
+
+    d = {'one': 0, 'two': True, 'three': 'False'}
+    s = '{"three": "False", "two": true, "one": 0}'
+    compare(s, encode_json(d))
+    compare(d, decode_json(encode_json(d)))

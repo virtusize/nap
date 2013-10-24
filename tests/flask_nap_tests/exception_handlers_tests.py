@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask.json import JSONEncoder
+
+from nap.util import encode_json
 
 from tests.helpers import *
 from tests.flask_nap_tests.helpers import *
@@ -97,7 +98,7 @@ def test_invalid_json_exception():
 def test_invalid_mimetype_exception():
     c = app.test_client()
 
-    data = JSONEncoder().encode({'valid': 'json'})
+    data = encode_json({'valid': 'json'})
     response = c.post('/api/v1/stores/', data=data, content_type='text/xml')
 
     assert_equal(response.status_code, 415)

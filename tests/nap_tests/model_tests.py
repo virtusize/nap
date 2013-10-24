@@ -189,3 +189,12 @@ def test_storage_pluck():
 
     compare(Stores._pluck(), [1, 2, 3])
     compare(Stores._pluck('name'), ['virtusize', 'asos', 'wesc'])
+
+
+def test_names():
+    assert_equal(AModel._name(), 'AModel')
+    assert_equal(AModel._underscore_name(), 'a_model')
+
+    a = AModel()
+    assert_equal(a._name(), 'AModel')
+    assert_equal(a._underscore_name(), 'a_model')

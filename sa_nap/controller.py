@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 from nap.exceptions import ModelNotFoundException
 from nap.controller import BaseController
-from blinker import Namespace
-
-
-namespace = Namespace()
+from blinker import signal
 
 
 class SAModelController(BaseController):
 
     def __init__(self):
-        self.created = namespace.signal(self.model_name + '-created')
-        self.updated = namespace.signal(self.model_name + '-updated')
-        self.deleted = namespace.signal(self.model_name + '-deleted')
+        self.created = signal('resource-' + self.model._underscore_name() + '-created')
+        self.updated = signal('resource-' + self.model._underscore_name() + '-updated')
+        self.deleted = signal('resource-' + self.model._underscore_name() + '-deleted')
 
     def index(self, ctx=None):
         return self.authorize(ctx, 'index', self.fetch_all())

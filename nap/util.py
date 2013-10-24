@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import types
+from flask.json import JSONEncoder, JSONDecoder
 
 
 def ensure_instance(cls_or_instance):
@@ -35,3 +37,15 @@ class Context(object):
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
+
+
+json_encoder = JSONEncoder()
+json_decoder = JSONDecoder()
+
+
+def encode_json(data):
+    return json_encoder.encode(data)
+
+
+def decode_json(data):
+    return json_decoder.decode(data)

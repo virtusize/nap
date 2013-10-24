@@ -18,6 +18,13 @@ class KeyFilter(Filter):
         self.key_filter = key_filter
 
     def filter(self, dct, ctx=None):
+        if isinstance(dct, list):
+            res = []
+            for item in dct:
+                res.append({self.key_filter(k): v for (k, v) in item.items()})
+
+            return res
+
         return {self.key_filter(k): v for (k, v) in dct.items()}
 
 
@@ -38,7 +45,7 @@ class ExcludeFilter(Filter):
     def __init__(self, exclude):
         self.exclude = exclude
 
-    def filter(self, dct, ctx):
+    def filter(self, dct, ctx=None):
         return {k: v for (k, v) in dct.items() if not k in self.exclude}
 
 
