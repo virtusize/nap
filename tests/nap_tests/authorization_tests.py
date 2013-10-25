@@ -81,6 +81,16 @@ def test_controller_actions():
     compare(ControllerActions.manage, ['index', 'read', 'create', 'update', 'delete', 'query'])
 
 
+def test_permissions_with_subject_list():
+    guard = Guard()
+    role = Role()
+    role.grant('index', Store)
+    identity = Identity([role])
+
+    assert_true(guard.can(identity, 'index', [Store()]))
+    assert_true(guard.can(identity, 'index', []))
+
+
 def test_permissions_without_conditions():
     guard = Guard()
     role = Role()

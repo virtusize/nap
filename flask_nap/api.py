@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import pprint
 from flask import Blueprint, request, g, make_response
-from flask.json import JSONEncoder
-from nap.util import ensure_instance, Context
+from flask_nap.view_filters import UnderscoreFilter
+from nap.exceptions import InvalidJSONException, InvalidMimetypeException
+from nap.util import ensure_instance, Context, encode_json, decode_json
 
 
 class Api(Blueprint):
@@ -24,7 +25,7 @@ class Api(Blueprint):
             v._register_on(self)
 
     def make_response(self, data, status_code):
-        json_data = JSONEncoder().encode(data)
+        json_data = encode_json(data)
         response = make_response(json_data)
         response.status_code = status_code
         response.mimetype = 'application/json'
@@ -56,7 +57,7 @@ class Debug(ApiMixin):
     def before(self):
         request_info = {}
 
-        request_fields = ['method','content_type', 'data', 'values', 'cookies', 'headers', 'path', 'full_path',
+        request_fields = ['method', 'content_type', 'data', 'values', 'cookies', 'headers', 'path', 'full_path',
                           'script_root', 'url', 'base_url', 'url_root', 'host_url', 'host',  'remote_addr']
 
         for field in request_fields:
@@ -72,6 +73,20 @@ class Debug(ApiMixin):
         return response
 
 
-class JsonDecoder(ApiMixin):
+class JsonRequestParser(ApiMixin):
+
+    filter = UnderscoreFilter()
+
     def before(self):
-        g.ctx.input = request.get_json()
+        input = None
+
+        if request.content_length:
+            if request.mimetype == 'application/json':
+                try:
+                    input = self.filter.filter(decode_json(request.data))
+                except:
+                    raise InvalidJSONException(request.data)
+            else:
+                raise InvalidMimetypeException(request.mimetype)
+
+        g.ctx.input = input

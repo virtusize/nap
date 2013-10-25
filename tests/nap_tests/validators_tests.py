@@ -171,3 +171,25 @@ def test_value_validators():
 
     for case in cases:
         yield (assert_value_validator,) + case
+
+
+def test_ensure_valid_model():
+    class ValidatorModel(Model):
+
+        _validate_with = [
+            FieldValidator('id', EnsureNotEmpty, EnsureInt),
+            FieldValidator('name', EnsureNotEmpty, EnsureUnicode)
+        ]
+
+    v = EnsureValidModel(ValidatorModel)
+
+    assert_value_validator(v, ValidatorModel(id=1, name=u'Nice'), True)
+
+    assert_value_validator(v, ValidatorModel(id=1, name='Nice'), False)
+    assert_value_validator(v, ValidatorModel(id=1, name=u''), False)
+    assert_value_validator(v, ValidatorModel(id='1', name=u'Nice'), False)
+
+    class NotValidatorModel(Model):
+        pass
+
+    assert_value_validator(v, NotValidatorModel(id=1, name=u'Nice'), False)

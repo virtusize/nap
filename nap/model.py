@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+from inflection import underscore
 from nap.validation import ValidationMetaClass, ValidationMixin
 
 
 class BaseModel(ValidationMixin):
-    pass
+    @classmethod
+    def _name(cls):
+        return cls.__name__
+
+    @classmethod
+    def _underscore_name(cls):
+        return underscore(cls._name())
 
 
 class Model(BaseModel):
@@ -12,6 +19,28 @@ class Model(BaseModel):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
+
+    def __str__(self):
+        return str(self.__getstate__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(**' + str(self) + ')'
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self.__getstate__() == other.__getstate__()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        for k in d.keys():
+            if k.startswith('_'):
+                del d[k]
+        return d
 
 
 class Storage(object):
@@ -50,4 +79,4 @@ class BaseSerializer(object):
 class ModelSerializer(BaseSerializer):
 
     def serialize(self, subject):
-        return subject.__dict__
+        return subject.__getstate__()

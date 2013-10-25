@@ -3,10 +3,12 @@ import inspect
 from collections import Iterable
 from functools import wraps
 from itertools import imap
-from flask import g
+from flask import g, request
 from inflection import dasherize, underscore, pluralize
 from nap.model import BaseModel
 from nap.util import ensure_instance
+from flask_nap.view_filters import UnderscoreFilter
+
 
 DEFAULT_METHODS_MAPPING = dict(
     get=['GET'],
@@ -78,6 +80,7 @@ class ModelView(BaseView):
         self.filter_chain = [ensure_instance(f) for f in cls.filter_chain]
         self.endpoint_prefix = cls.endpoint_prefix if hasattr(cls, 'endpoint_prefix') else underscore(pluralize(self.controller.model.__name__))
         self.dashed_endpoint = dasherize(self.endpoint_prefix)
+        self.query_filter = UnderscoreFilter()
 
     def filter(self, subject):
 
@@ -129,3 +132,11 @@ class ModelView(BaseView):
     @route('/{dashed_endpoint}/<int:id>')
     def delete(self, id):
         return self.controller.delete(id, g.ctx), 200
+
+    @route('/{dashed_endpoint}/query')
+    def query(self):
+        query = self.query_filter.filter(request.args.to_dict())
+        for k, v in query.items():
+            if v == '' or v == 'null':
+                query[k] = None
+        return self.controller.query(query, g.ctx), 200

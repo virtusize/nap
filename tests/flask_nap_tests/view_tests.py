@@ -173,13 +173,32 @@ def test_samodel_view_delete():
         compare(store, response)
 
 
+def test_samodel_view_query():
+    with db(), fixtures(Stores, fixture_loader=fixture_loader):
+        c = app.test_client()
+
+        response = c.get('/api/v1/stores/query', query_string={'name': 'Virtusize Demo Store'})
+        assert_equal(response.status_code, 200)
+        assert_equal(len(response.json), 1)
+
+        store = response.json[0]
+
+        assert_equal(store['id'], 1)
+        assert_equal(store['ownerId'], 1)
+
+        response = c.get('/api/v1/stores/query', query_string={'name': ''})
+        assert_equal(response.status_code, 200)
+        assert_is_instance(response.json, list)
+        assert_equal(len(response.json), 0)
+
+
 def test_unauthorized_samodel_view_get_index():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         c = app.test_client()
 
         response = c.get('/api/v1/users/')
         assert_equal(response.status_code, 403)
-        assert_equal(response.json['model_name'], 'User')
+        assert_equal(response.json['modelName'], 'User')
         assert_equal(response.json['message'], 'Unauthorized.')
 
 
@@ -187,7 +206,7 @@ def test_authorized_samodel_view_get_index():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         c = app.test_client()
 
-        response = c.get('/api/v1/users/?api_key=123xyz')
+        response = c.get('/api/v1/users/', headers={'Authorization': '123xyz'})
         assert_equal(response.status_code, 200)
         users = response.json
         assert_equal(len(users), 2)
@@ -199,7 +218,7 @@ def test_unauthorized_samodel_view_get():
 
         response = c.get('/api/v1/users/%s' % Users.john.id)
         assert_equal(response.status_code, 403)
-        assert_equal(response.json['model_name'], 'User')
+        assert_equal(response.json['modelName'], 'User')
         assert_equal(response.json['message'], 'Unauthorized.')
 
 
@@ -207,7 +226,7 @@ def test_authorized_samodel_view_get():
     with db(), fixtures(Users, fixture_loader=fixture_loader):
         c = app.test_client()
 
-        response = c.get('/api/v1/users/%s?api_key=123xyz' % Users.john.id)
+        response = c.get('/api/v1/users/%s' % Users.john.id, headers={'Authorization': '123xyz'})
         assert_equal(response.status_code, 200)
         user = response.json
         assert_equal(user['name'], 'John')

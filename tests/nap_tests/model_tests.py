@@ -18,6 +18,32 @@ def test_assignment_of_attributes():
     assert_true(isinstance(model.dct, dict))
 
 
+def test_model():
+    a = AModel()
+    a.something = 'some'
+    a.anything = 'any'
+    a.is_false = False
+    a.three = 3
+
+    b = AModel(something='some', anything='any', is_false=True, three=3)
+    assert_false(a == b)
+
+    b.is_false = False
+    assert_true(a == b)
+
+    compare(a, b)
+
+    c = AModel(**{'is_false': False, 'something': 'some', 'anything': 'any', 'three': 3})
+    compare(a, c)
+
+    assert_equal("AModel(**{'is_false': False, 'something': 'some', 'anything': 'any', 'three': 3})", repr(a))
+
+    assert_false(a.__ne__(b))
+    assert_false(c.__ne__(b))
+
+    assert_equal(a.__ne__(b), not a.__eq__(b))
+
+
 def test_model_with_validation():
     class VModel(Model):
 
@@ -151,7 +177,7 @@ def test_create_implicit_store():
     assert_equal(Stores.virtusize.id, 1)
     assert_equal(Stores.virtusize.name, 'virtusize')
 
-   
+
 def test_storage_pluck():
     class Store(Model):
         pass
@@ -164,3 +190,11 @@ def test_storage_pluck():
     compare(Stores._pluck(), [1, 2, 3])
     compare(Stores._pluck('name'), ['virtusize', 'asos', 'wesc'])
 
+
+def test_names():
+    assert_equal(AModel._name(), 'AModel')
+    assert_equal(AModel._underscore_name(), 'a_model')
+
+    a = AModel()
+    assert_equal(a._name(), 'AModel')
+    assert_equal(a._underscore_name(), 'a_model')

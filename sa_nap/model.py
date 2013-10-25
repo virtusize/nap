@@ -3,11 +3,18 @@
 from inflection import underscore, pluralize
 from sqlalchemy import event, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import mapper
-from nap.model import BaseModel, BaseSerializer
+from sqlalchemy.types import TypeDecorator, Text
+from nap.model import BaseModel, Model, BaseSerializer, ModelSerializer
+from nap.util import encode_json, decode_json
 from nap.validation import ValidationContext, ValidationMixin
 from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
+
+
+class NoSessionBound(Exception):
+    pass
 
 
 class Field(Column):
@@ -15,13 +22,13 @@ class Field(Column):
     This is a extension for Column type that allows us to pass in a list of validator classes
     to validate against.
     Example:
-        name = Field(String, validate_constraints=True, validate_with=[EnsureNotNone])
+        name = Field(String, validate_with=[EnsureNotNone])
     """
     def __init__(self, *args, **kwargs):
 
         info = kwargs.get('info', {})
         info['_validator_list'] = kwargs.pop('validate_with', [])
-        info['_validate_constraints'] = kwargs.pop('validate_constraints', False)
+        info['_validate_constraints'] = kwargs.pop('validate_constraints', True)
         kwargs['info'] = info
 
         super(Field, self).__init__(*args, **kwargs)
@@ -39,6 +46,12 @@ class SAModel(BaseModel):
         for key, value in attributes.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+
+    @classmethod
+    def get_session(cls):
+        if hasattr(cls, '__db_session__') and cls.__db_session__:
+            return cls.__db_session__
+        raise NoSessionBound('No session bound to SAModel, bind it with SAModel.__db_session__ = db_session')
 
 SAModel = declarative_base(cls=SAModel)
 
@@ -81,3 +94,35 @@ class SAModelSerializer(BaseSerializer):
 
     def serialize(self, subject):
         return {c.name: getattr(subject, c.name) for c in subject.__table__.columns}
+
+
+class ModelJSON(TypeDecorator):
+    impl = Text
+    serializer = ModelSerializer()
+
+    def __init__(self, model_class):
+        super(ModelJSON, self).__init__()
+        self.model_class = model_class
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = encode_json(self.serializer.serialize(value))
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = self.model_class(**decode_json(value))
+        return value
+
+
+class FieldModel(Model, Mutable):
+    """ Mutable base class """
+    @classmethod
+    def coerce(cls, key, value):
+        return value
+
+    def __setattr__(self, name, value):
+        Model.__setattr__(self, name, value)
+        self.changed()
+
+FieldModel.associate_with(ModelJSON)

@@ -25,7 +25,7 @@ class BaseController(object):
 
     @property
     def model_name(self):
-        return self.model.__name__ if hasattr(self, 'model') and self.model.__name__ else self.__class__.__name__
+        return self.model._name() if hasattr(self, 'model') else self.__class__.__name__
 
     def authorize(self, ctx, action, model_or_list):
         if not hasattr(self, 'guard'):
@@ -34,7 +34,11 @@ class BaseController(object):
         elif not ctx or 'identity' not in ctx:
             raise UnauthorizedException(self.model_name)
 
-        if self.guard.cannot(ctx.identity, action, model_or_list):
+        # Use the model instance, a list of models or, in case of an empty
+        # list, the model class of this controller as a subject
+        subject = model_or_list if model_or_list else self.model
+
+        if self.guard.cannot(ctx.identity, action, subject):
             raise UnauthorizedException(self.model_name)
 
         return model_or_list
@@ -43,7 +47,7 @@ class BaseController(object):
 class ModelController(BaseController):
 
     def index(self, ctx=None):
-        return self.authorize(ctx, 'read', self.fetch_all())
+        return self.authorize(ctx, 'index', self.fetch_all())
 
     def read(self, id, ctx=None):
         return self.authorize(ctx, 'read', self.fetch_model(id))

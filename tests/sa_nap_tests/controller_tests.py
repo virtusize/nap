@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from nap.exceptions import ModelNotFoundException
-from nap.authorization import Guard
+from nap.exceptions import ModelNotFoundException, ModelInvalidException, UnauthorizedException
+from nap.authorization import Guard, Role, ControllerActions, Identity
+from nap.util import Context
 from sa_nap.controller import SAModelController
-from tests.fixtures import Users, User, Stores, Store, Products, Product, fixture_loader
+from tests.fixtures import Users, User, Stores, Store, Products, Product, fixture_loader, ProductTypes
 from tests.helpers import *
 
 
@@ -19,6 +20,7 @@ class StoreController(SAModelController):
 class ProductController(SAModelController):
     model = Product
     session_factory = db_session
+    guard = Guard()
 
 
 def test_controller():
@@ -47,3 +49,156 @@ def test_controller_delete():
 
         c.delete(Users.john.id)
         c.read(Users.john.id)
+
+
+@raises(ModelInvalidException)
+def test_unique_validator_by_db_insert_same_commit():
+    with db():
+        c = UserController()
+        c.create({'name': u'Joe', 'email': 'valid@example.com', 'password': '123456'})
+        c.create({'name': u'Other Joe', 'email': 'valid@example.com', 'password': '123456'})
+
+
+@raises(UnauthorizedException)
+def test_unauthorized_index_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        c = ProductController()
+        c.index()
+
+
+@raises(UnauthorizedException)
+def test_unauthorized_read_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        c = ProductController()
+        c.read(1)
+
+
+@raises(UnauthorizedException)
+def test_unauthorized_update_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        c = ProductController()
+        c.update(1, {'name': u'Blue Shirt', 'product_type_id': ProductTypes.shirt.id})
+
+
+@raises(UnauthorizedException)
+def test_unauthorized_create_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        c = ProductController()
+        c.create({'name': u'Red Pants', 'product_type_id': ProductTypes.pants.id, 'store_id': Stores.virtusize.id})
+
+
+@raises(UnauthorizedException)
+def test_unauthorized_delete_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        c = ProductController()
+        c.delete(1)
+
+
+def test_index_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.index, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.index(ctx)
+
+
+def test_read_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.read, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.read(1, ctx)
+
+
+def test_update_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.update, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.update(1, {'name': u'Blue Shirt', 'product_type_id': ProductTypes.shirt.id}, ctx)
+
+
+def test_create_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.create, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.create({'name': u'Red Pants', 'product_type_id': ProductTypes.pants.id, 'store_id': Stores.virtusize.id}, ctx)
+
+
+def test_delete_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.delete, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.delete(1, ctx)
+
+
+def test_empty_list_index_permission():
+    with db(), fixtures(Products, fixture_loader=fixture_loader):
+        ctx = Context()
+        role = Role()
+        role.grant(ControllerActions.index, Product)
+        role.grant(ControllerActions.delete, Product)
+        ctx.identity = Identity([role])
+        c = ProductController()
+        c.delete(1, ctx)
+
+        compare(c.index(ctx), [])
+
+
+from blinker import signal
+
+
+def test_signals():
+    with db(), fixtures(Stores, fixture_loader=fixture_loader):
+        sc = StoreController()
+
+        def created(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Created Store')
+
+        sc.created.connect(created)
+
+        sig = signal('resource-store-created')
+
+        @sig.connect
+        def decorated_created(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Created Store')
+
+        def updated(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.name, 'Updated Store')
+
+        sc.updated.connect(updated)
+
+        store = sc.create({'name': u'Created Store', 'owner_id': 1})
+        sc.update(store.id, {'name': u'Updated Store'})
+
+        def deleted(sender):
+            assert_is_instance(sender, Store)
+            assert_equal(sender.id, store.id)
+
+        sc.deleted.connect(deleted)
+
+        sc.delete(store.id)
+
+        uc = UserController()
+
+        def user_created(sender):
+            assert_is_instance(sender, User)
+            assert_equal(sender.name, 'Created User')
+
+        uc.created.connect(user_created)
+        uc.create({'name': u'Created User', 'email': 'created-user@example.com', 'password': '123456'})

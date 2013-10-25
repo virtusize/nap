@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, g, request
-from flask_nap.api import Api, Debug, JsonDecoder, ApiMixin
+from flask_nap.api import Api, Debug, JsonRequestParser, ApiMixin
 from flask_nap.view import ModelView, route
 from flask_nap.view_filters import CamelizeFilter, ExcludeFilter
-from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler
+from flask_nap.exception_handlers import UnsupportedMethodExceptionHandler, ModelNotFoundExceptionHandler, ModelInvalidExceptionHandler, UnauthorizedExceptionHandler, UnauthenticatedExceptionHandler, HTTPExceptionHandler, InvalidJSONExceptionHandler, InvalidMimetypeExceptionHandler
 from sa_nap.controller import SAModelController
 from sa_nap.model import SAModelSerializer
 from tests.fixtures import ProductType, ProductTypes, Store, User, Product
@@ -68,6 +68,7 @@ class ProductView(ModelView):
 
 class Roles(object):
     guest = Role()
+    guest.grant(ControllerActions.index, User)
     guest.grant(ControllerActions.read, User)
 
 
@@ -78,7 +79,7 @@ class GuestIdentity(Identity):
 
 class Authentication(ApiMixin):
     def before(self):
-        if request.args.has_key('api_key') and request.args.get('api_key', None) == '123xyz':
+        if request.headers.has_key('Authorization') and request.headers.get('Authorization', None) == '123xyz':
             g.ctx.identity = GuestIdentity()
 
 
@@ -89,7 +90,7 @@ class AnApi(Api):
     mixins = [
         Authentication,
         Debug(print_request=False, print_response=False),
-        JsonDecoder
+        JsonRequestParser
     ]
     views = [
         ProductTypeView,
@@ -99,6 +100,8 @@ class AnApi(Api):
     ]
     exception_handlers = [
         UnsupportedMethodExceptionHandler,
+        InvalidJSONExceptionHandler,
+        InvalidMimetypeExceptionHandler,
         ModelNotFoundExceptionHandler,
         ModelInvalidExceptionHandler,
         UnauthorizedExceptionHandler,

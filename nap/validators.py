@@ -2,6 +2,7 @@
 
 import re
 
+from nap.model import Model
 from nap.validation import ModelValidator, ValueValidator
 
 
@@ -180,3 +181,18 @@ class EnsureOneOf(ValueValidator):
             return [self.message.format(field=field_name, values=self.values)]
         return []
 
+
+class EnsureValidModel(ValueValidator):
+    message = 'Field {field} is not of type {model_name}'
+
+    def __init__(self, model_class):
+        self.model_class = model_class
+
+    def validate(self, model_instance, field_name, value):
+        if isinstance(value, self.model_class) and value.validate():
+            return []
+
+        if not isinstance(value, self.model_class):
+            return [self.message.format(field=field_name, model_name=self.model_class.__name__)]
+
+        return value.validate().errors
