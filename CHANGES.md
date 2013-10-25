@@ -12,6 +12,9 @@ Use list notation, and following prefixes:
 
 ### NEXT RELEASE
 
+
+### 0.2.0
+
 - Feature: Added Response object to nap client. (hs)
 - Refactor: Moved flask.json stuff into nap.util. (hs)
 - Feature: View filters now accept lists and filter on the containing elements. (hs)
