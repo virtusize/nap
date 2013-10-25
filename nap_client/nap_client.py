@@ -23,13 +23,10 @@ class Response(object):
     @property
     def first(self):
         if not self.successful or \
-           isinstance(self.data, list) and len(self) == 0:
+           (isinstance(self.data, list) and len(self) == 0):
             return None
 
-        if isinstance(self.data, list):
-            return self[0]
-        else:
-            return self.data
+        return self[0]
 
     @property
     def error(self):
