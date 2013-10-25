@@ -15,12 +15,14 @@ setup(
     packages=find_packages(),
 
     install_requires=[
+        'blinker',
         'coverage',
         'dogpile.cache==0.5.0',
         'flask==0.10.1',
         'fixture',
         'inflection',
         'nose',
+        'requests',
         'sqlalchemy==0.8.2',
         'testfixtures'
     ]

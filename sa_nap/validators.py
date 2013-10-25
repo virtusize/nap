@@ -27,7 +27,7 @@ class SQLConstraintsValidator(ValueValidator):
 
     def __init__(self, field):
         self.validators = []
-        if field.primary_key:
+        if field.primary_key or field.default:
             return
 
         if isinstance(field.type, types.String) and field.type.length:

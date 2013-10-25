@@ -2,7 +2,8 @@
 from flask import g
 
 from nap.util import Context
-from flask_nap.api import ApiMixin, Debug, JsonRequestParser, InvalidJSONException, InvalidMimetypeException
+from flask_nap.view import BaseView
+from flask_nap.api import Api, ApiMixin, Debug, JsonRequestParser, InvalidJSONException, InvalidMimetypeException
 from tests.flask_nap_tests.fixtures import AnApi
 from tests.flask_nap_tests.helpers import app
 from tests.helpers import *

@@ -42,7 +42,7 @@ class Users(DataSet):
 
     class jane:
         id = 2
-        name = u'jane'
+        name = u'Jane'
         email = 'jane@virtusize.com'
         password = '123456'
 

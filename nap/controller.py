@@ -25,7 +25,7 @@ class BaseController(object):
 
     @property
     def model_name(self):
-        return self.model.__name__ if hasattr(self, 'model') and self.model.__name__ else self.__class__.__name__
+        return self.model._name() if hasattr(self, 'model') else self.__class__.__name__
 
     def authorize(self, ctx, action, model_or_list):
         if not hasattr(self, 'guard'):

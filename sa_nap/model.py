@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from flask.json import JSONEncoder, JSONDecoder
-
 from inflection import underscore, pluralize
 from sqlalchemy import event, Column
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
@@ -9,6 +7,7 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import mapper
 from sqlalchemy.types import TypeDecorator, Text
 from nap.model import BaseModel, Model, BaseSerializer, ModelSerializer
+from nap.util import encode_json, decode_json
 from nap.validation import ValidationContext, ValidationMixin
 from nap.validators import FieldValidator
 from sa_nap.validators import SQLConstraintsValidator
@@ -107,12 +106,12 @@ class ModelJSON(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is not None:
-            value = JSONEncoder().encode(self.serializer.serialize(value))
+            value = encode_json(self.serializer.serialize(value))
         return value
 
     def process_result_value(self, value, dialect):
         if value is not None:
-            value = self.model_class(**JSONDecoder().decode(value))
+            value = self.model_class(**decode_json(value))
         return value
 
 

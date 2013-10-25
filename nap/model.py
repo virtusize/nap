@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+from inflection import underscore
 from nap.validation import ValidationMetaClass, ValidationMixin
 
 
 class BaseModel(ValidationMixin):
-    pass
+    @classmethod
+    def _name(cls):
+        return cls.__name__
+
+    @classmethod
+    def _underscore_name(cls):
+        return underscore(cls._name())
 
 
 class Model(BaseModel):

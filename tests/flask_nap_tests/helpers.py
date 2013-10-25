@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask.json import JSONDecoder, JSONEncoder
 from fixtures import app
+from nap.util import encode_json, decode_json
 
 test_client = app.test_client()
 
@@ -32,7 +32,7 @@ def _augment_response_class(response_class):
         """
         @property
         def json(self):
-            return JSONDecoder().decode(self.data)
+            return decode_json(self.data)
 
     class TestResponse(response_class, JsonResponseMixin):
         pass
@@ -41,5 +41,6 @@ def _augment_response_class(response_class):
 
 app.response_class = _augment_response_class(app.response_class)
 
+
 def with_json_data(dct):
-    return dict(data=JSONEncoder().encode(dct), content_type='application/json')
+    return dict(data=encode_json(dct), content_type='application/json')
