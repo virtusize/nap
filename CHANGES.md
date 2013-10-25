@@ -12,10 +12,11 @@ Use list notation, and following prefixes:
 
 ### NEXT RELEASE
 
+- Feature: Added Response object to nap client. (hs)
 - Refactor: Moved flask.json stuff into nap.util. (hs)
 - Feature: View filters now accept lists and filter on the containing elements. (hs)
 - Refactor: Model class is now responsible for creating its name. (hs)
-- Refactor: NapClients call method is now public for adding API custom routes. (hs)
+- Refactor: SQLConstraintsValidator now doesn't get applied if a field is creating default values. (hs)
 - Feature: Added a method to find a view of the Api by endpoint prefix. (hs)
 - Feature: Added blinker signals to SAModelController for create, update and delete actions. (hs)
 - Feature: Now empty results get handled by authorization. For possible improvements see Github Issues. (hs)

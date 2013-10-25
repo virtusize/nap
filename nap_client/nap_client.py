@@ -1,11 +1,94 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import urllib
 import requests
 from inflection import dasherize, underscore, pluralize
 from flask_nap.view_filters import UnderscoreFilter, CamelizeFilter
 from nap.model import Model
 from nap.util import encode_json, decode_json
+
+
+class Response(object):
+    def __init__(self, resource, raw_data, status):
+        self.status = status
+        self.resource = resource
+        self.raw_data = raw_data
+        self.data = self._modelize() if raw_data else []
+
+    @property
+    def successful(self):
+        return self.status in range(200,300)
+
+    @property
+    def first(self):
+        if not self.successful or \
+           isinstance(self.data, list) and len(self) == 0:
+            return None
+
+        if isinstance(self.data, list):
+            return self[0]
+        else:
+            return self.data
+
+    @property
+    def error(self):
+        if self.successful:
+            return None
+
+        return self.data
+
+    def _modelize(self):
+        if isinstance(self.raw_data, list):
+            dct = copy.deepcopy(self.raw_data)
+            for item in dct:
+                item['_resource'] = self.resource
+
+            return [Model(**item) for item in dct]
+
+        dct = copy.deepcopy(self.raw_data)
+        dct['_resource'] = self.resource
+        return Model(**dct)
+
+    def __str__(self):
+        return str(self.__getstate__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(**' + str(self) + ')'
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self.__getstate__() == other.__getstate__()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        for k in d.keys():
+            if k.startswith('_'):
+                del d[k]
+        return d
+
+    def __len__(self):
+        if not self.successful:
+            return 0
+        
+        if isinstance(self.data, list):
+            return len(self.data)
+        
+        return 1
+
+    def __getitem__(self, key):
+        if not self.successful:
+            return None 
+        
+        if isinstance(self.data, list):
+            return self.data[key]
+            
+        return self.data
 
 
 class NapClient(object):
@@ -66,15 +149,6 @@ class NapClient(object):
         else:
             return self.post(model._resource, data=model.__getstate__())
 
-    def _modelize(self, resource_name, data):
-        if isinstance(data, list):
-            for item in data:
-                item['_resource'] = resource_name
-
-            return [Model(**item) for item in data]
-
-        data['_resource'] = resource_name
-        return Model(**data)
 
     def _serialize(self, data):
         return encode_json(self.output_filter.filter(data))
@@ -86,7 +160,7 @@ class NapClient(object):
         data = self._deserialize(data)
 
         if status_code < 500:
-            return self._modelize(resource_name, data)
+            return Response(resource_name, data, status_code)
         elif status_code >= 500:
             raise Exception('Status: %s' % data['status_code'] + ' - Message: %s' % data['message'])
 
