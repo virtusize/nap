@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import types
-from flask.json import JSONEncoder, JSONDecoder
+import json
+import datetime
+import uuid
 
 
 def ensure_instance(cls_or_instance):
@@ -39,8 +41,21 @@ class Context(object):
         self.__dict__[key] = value
 
 
+class JSONEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        """
+        Allows serialization of datetime objects and uuid
+        """
+        if isinstance(o, (datetime.datetime, datetime.date, datetime.time)):
+            return o.isoformat()
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+
+
 json_encoder = JSONEncoder()
-json_decoder = JSONDecoder()
+json_decoder = json.JSONDecoder()
 
 
 def encode_json(data):

@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import datetime
+import uuid
 
 from nap.util import ensure_instance, Context, encode_json, decode_json
 from tests.helpers import *
@@ -51,3 +53,26 @@ def test_json():
     s = '{"three": "False", "two": true, "one": 0}'
     compare(s, encode_json(d))
     compare(d, decode_json(encode_json(d)))
+
+
+def test_json_encoder():
+    now = datetime.datetime.utcnow()
+    date = now.date()
+    time = now.time()
+    uid = uuid.uuid4()
+
+    obj = {
+        'datetime': now,
+        'date': date,
+        'time': time,
+        'uuid': uid
+    }
+
+    expected = {
+        'datetime': now.isoformat(),
+        'date': date.isoformat(),
+        'time': time.isoformat(),
+        'uuid': str(uid)
+    }
+
+    compare(expected, decode_json(encode_json(obj)))
